@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cv_line_card"
+    android:layout_width="180dp"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="12dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginRight="12dp"
+    android:layout_marginBottom="6dp"
+    android:background="@color/background"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="3dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|left"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/fontDrawable"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_line_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/cush_reguler"
+                    android:text="8 km"
+                    android:textSize="22dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_line_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MARGA 002"
+                    android:textAllCaps="true" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_line_manufacture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:text="WAVIN"
+            android:textSize="22dp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/tv_line_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start - Stop" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left|center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_bold"
+                android:text="Dim : " />
+
+            <TextView
+                android:id="@+id/tv_line_diameter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:text="3.50 inch" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:gravity="left|center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_bold"
+                android:text="Thicknes : " />
+
+            <TextView
+                android:id="@+id/tv_line_thickness"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:text="30 mm" />
+
+        </LinearLayout>
+
+
+
+        <TextView
+            android:id="@+id/tv_details"
+            android:layout_width="128dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/bg_rounded_button"
+            android:fontFamily="@font/cush_reguler"
+            android:gravity="center"
+            android:paddingLeft="32dp"
+            android:paddingTop="6dp"
+            android:paddingRight="32dp"
+            android:paddingBottom="6dp"
+            android:text="More"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+
+</android.support.v7.widget.CardView>
+
+

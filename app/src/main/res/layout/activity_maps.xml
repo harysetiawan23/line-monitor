@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".view.activity.MapsActivity">
+
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="?attr/actionBarSize"
+        tools:context=".view.activity.MapsActivity" />
+
+    <RelativeLayout
+        android:id="@+id/fl_line_info"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:background="@drawable/bg_gradient_header">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:fontFamily="@font/cush_reguler"
+            android:gravity="center"
+            android:text="Dashboard"
+            android:textSize="16dp"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.Toolbar
+            app:navigationIcon="@drawable/ic_menu"
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            app:title="" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/toolbar"
+            android:indeterminate="true" />
+
+        <com.arlib.floatingsearchview.FloatingSearchView
+            android:id="@+id/floating_search_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/progress_bar"
+            app:floatingSearch_close_search_on_keyboard_dismiss="true"
+            app:floatingSearch_leftActionMode="noLeftAction"
+            app:floatingSearch_searchBarMarginLeft="12dp"
+            app:floatingSearch_searchBarMarginRight="12dp"
+            app:floatingSearch_searchHint="Search Line"
+            app:floatingSearch_searchInputTextSize="5dp"
+            app:floatingSearch_showSearchKey="true"
+            app:floatingSearch_suggestionRightIconColor="@color/black"
+            app:floatingSearch_suggestionsListAnimDuration="250" />
+
+
+    </RelativeLayout>
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_gradient_footer"
+        android:elevation="3dp"
+        android:orientation="vertical"
+        android:paddingTop="22dp"
+        android:paddingBottom="12dp">
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_line_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="22dp" />
+
+
+    </LinearLayout>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="@dimen/fab_margin"
+        android:tint="#FFF"
+        app:srcCompat="@android:drawable/ic_input_add" />
+
+</FrameLayout>
+
+
+
