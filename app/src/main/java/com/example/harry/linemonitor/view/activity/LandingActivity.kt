@@ -1,10 +1,18 @@
 package com.example.harry.linemonitor.view.activity
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
+import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
@@ -14,6 +22,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import com.example.harry.linemonitor.R
 import com.example.harry.linemonitor.data.LineMasterMap
 import com.example.harry.linemonitor.view.adapter.HorizontalLineAdapter
@@ -24,13 +33,16 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_landing.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.startActivity
-import java.util.ArrayList
+import java.util.*
 
-class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LineMapContract, HorizontalLineAdapter.OnItemClickListener, View.OnClickListener {
+class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LineMapContract, HorizontalLineAdapter.OnItemClickListener,
+        View.OnClickListener, SeekBar.OnSeekBarChangeListener,
+        LocationListener {
 
 
     private lateinit var linePresenter: LineMapsPresenter
@@ -40,76 +52,49 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
     private lateinit var thisActivity: Activity
     private lateinit var mMap: GoogleMap
     private lateinit var selectedLine: LineMasterMap
-
-
-    override fun showLoading() {
-        progress_bar.visibility = View.VISIBLE
-    }
-
-    override fun hideLoading() {
-        progress_bar.visibility = View.GONE
-    }
-
-    override fun onSuccess(data: List<LineMasterMap?>?) {
-        listLine = ArrayList<ArrayList<LatLng>>()
-        listPin = ArrayList<MarkerOptions>()
-
-
-        rv_line_list.setAdapter(HorizontalLineAdapter(data, this, ctx))
-
-        data?.forEach { lineData: LineMasterMap? ->
-            var line = ArrayList<LatLng>()
-
-            line.add(LatLng(lineData!!.startNodeLat!!.toDouble(), lineData!!.startNodeLng!!.toDouble()))
-            line.add(LatLng(lineData!!.endNodeLat!!.toDouble(), lineData!!.endNodeLng!!.toDouble()))
-            listLine.add(line)
-
-
-            var markerOptionStart = MarkerOptions()
-                    .position(LatLng(lineData!!.startNodeLat!!.toDouble(), lineData!!.startNodeLng!!.toDouble()))
-                    .title(lineData!!.startNodeSN)
-
-            var markerOptionEnd = MarkerOptions()
-                    .position(LatLng(lineData!!.endNodeLat!!.toDouble(), lineData!!.endNodeLng!!.toDouble()))
-                    .title(lineData!!.endNodeSN)
+    private lateinit var locationManager: LocationManager
+    private val MIN_TIME: Long = 400.toLong()
+    private val MIN_DISTANCE: Float = 1000f
+    private lateinit var myLatLongBounds: LatLngBounds
+    private lateinit var myLocation: LatLng
 
 
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_landing)
+        toolbar.title = ""
+        toolbar.navigationIcon = resources.getDrawable(R.drawable.ic_menu)
+        setSupportActionBar(toolbar)
 
-            listPin.add(markerOptionStart)
-            listPin.add(markerOptionEnd)
+        zoom_seekbar.setOnSeekBarChangeListener(this)
+
+
+
+        linePresenter = LineMapsPresenter(this)
+        thisActivity = this
+        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+
+
+        rv_line_list.layoutManager = LinearLayoutManager(ctx, LinearLayout.HORIZONTAL, false)
+
+
+
+        my_location_fab.setOnClickListener { view ->
+            var cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, zoom_seekbar.progress.toFloat());
+            mMap.animateCamera(cameraUpdate);
         }
 
-        mapFragment.getMapAsync(this)
-    }
+        val toggle = ActionBarDrawerToggle(thisActivity, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        drawer_layout.addDrawerListener(toggle)
 
-    override fun onError(data: String) {
+        toggle.syncState()
 
-    }
-
-    override fun onHorizontalItemClick(item: LineMasterMap) {
-        var bounds = LatLngBounds.builder()
-
-        selectedLine = item!!
-
-        bounds.include(LatLng(item!!.startNodeLat!!.toDouble(), item!!.startNodeLng!!.toDouble()))
-        bounds.include(LatLng(item!!.endNodeLat!!.toDouble(), item!!.endNodeLng!!.toDouble()))
-
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, 13f))
+        nav_view.setNavigationItemSelectedListener(this)
 
 
     }
 
-
-    override fun onClick(v: View?) {
-        when (v!!.id) {
-
-            R.id.tv_details -> {
-                Log.d("SelectedLine", selectedLine.toString())
-                startActivity<LineDataV2>("lineData" to selectedLine)
-            }
-        }
-    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -141,41 +126,117 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
             bounds.include(markerOptions.position)
         }
 
-
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, 13f))
-    }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_landing)
-        toolbar.title = ""
-        toolbar.navigationIcon = resources.getDrawable(R.drawable.ic_menu)
-        setSupportActionBar(toolbar)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
 
 
-        linePresenter = LineMapsPresenter(this)
-        thisActivity = this
-        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+            mMap.isMyLocationEnabled = true
 
 
-        rv_line_list.layoutManager = LinearLayoutManager(ctx, LinearLayout.HORIZONTAL, false)
+        } else {
 
-
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
         }
 
-        val toggle = ActionBarDrawerToggle(thisActivity, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer_layout.addDrawerListener(toggle)
 
-        toggle.syncState()
 
-        nav_view.setNavigationItemSelectedListener(this)
+        mMap.isTrafficEnabled = true
+        mMap.isBuildingsEnabled = true
+
+        mMap.uiSettings.isMyLocationButtonEnabled = true
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, zoom_seekbar.progress.toFloat()))
+        myLatLongBounds = bounds.build()
     }
 
+
+    override fun showLoading() {
+        progress_bar.visibility = View.VISIBLE
+    }
+
+    override fun hideLoading() {
+        progress_bar.visibility = View.GONE
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun onSuccess(data: List<LineMasterMap?>?) {
+        listLine = ArrayList<ArrayList<LatLng>>()
+        listPin = ArrayList<MarkerOptions>()
+
+
+        rv_line_list.setAdapter(HorizontalLineAdapter(data, this, ctx))
+
+        data?.forEach { lineData: LineMasterMap? ->
+            var line = ArrayList<LatLng>()
+
+            line.add(LatLng(lineData!!.startNodeLat!!.toDouble(), lineData!!.startNodeLng!!.toDouble()))
+            line.add(LatLng(lineData!!.endNodeLat!!.toDouble(), lineData!!.endNodeLng!!.toDouble()))
+            listLine.add(line)
+
+
+            var markerOptionStart = MarkerOptions()
+                    .position(LatLng(lineData!!.startNodeLat!!.toDouble(), lineData!!.startNodeLng!!.toDouble()))
+                    .title(lineData!!.startNodeSN)
+
+            var markerOptionEnd = MarkerOptions()
+                    .position(LatLng(lineData!!.endNodeLat!!.toDouble(), lineData!!.endNodeLng!!.toDouble()))
+                    .title(lineData!!.endNodeSN)
+
+
+
+
+            listPin.add(markerOptionStart)
+            listPin.add(markerOptionEnd)
+        }
+
+
+        val rxPermissions = RxPermissions(this)
+        rxPermissions
+                .request(Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) // ask single or multiple permission once
+                .subscribe { granted ->
+                    if (granted!!) {
+                        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+
+                    } else {
+
+                    }
+                }
+
+
+
+        mapFragment.getMapAsync(this)
+    }
+
+    override fun onError(data: String) {
+
+    }
+
+    override fun onHorizontalItemClick(item: LineMasterMap) {
+        var bounds = LatLngBounds.builder()
+
+        selectedLine = item!!
+
+        bounds.include(LatLng(item!!.startNodeLat!!.toDouble(), item!!.startNodeLng!!.toDouble()))
+        bounds.include(LatLng(item!!.endNodeLat!!.toDouble(), item!!.endNodeLng!!.toDouble()))
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, 13f))
+
+
+    }
+
+
+    override fun onClick(v: View?) {
+        when (v!!.id) {
+
+            R.id.tv_details -> {
+                Log.d("SelectedLine", selectedLine.toString())
+                startActivity<LineDataV2>("lineData" to selectedLine)
+            }
+        }
+    }
 
 
     override fun onResume() {
@@ -234,4 +295,43 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
+
+
+    //Location Listener
+    override fun onLocationChanged(location: Location?) {
+        var latLng = LatLng(location!!.getLatitude(), location!!.getLongitude());
+        myLocation = latLng
+        locationManager.removeUpdates(this);
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+
+    }
+
+    override fun onProviderEnabled(provider: String?) {
+
+    }
+
+    override fun onProviderDisabled(provider: String?) {
+
+    }
+
+
+    //Seekbar Listener
+
+    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+        var cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLatLongBounds.center, progress.toFloat());
+        mMap.animateCamera(cameraUpdate);
+        locationManager.removeUpdates(this);
+    }
+
+    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+    }
+
+    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+    }
+
+
 }

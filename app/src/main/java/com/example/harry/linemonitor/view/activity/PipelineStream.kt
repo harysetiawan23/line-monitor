@@ -1,8 +1,17 @@
 package com.example.harry.linemonitor.view.activity
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -11,6 +20,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.SeekBar
 import com.example.harry.linemonitor.R
 import com.example.harry.linemonitor.data.LineHistory
 import com.example.harry.linemonitor.data.LineMasterMap
@@ -27,14 +37,15 @@ import com.google.gson.Gson
 import com.pusher.client.Pusher
 import com.pusher.client.PusherOptions
 import com.pusher.client.channel.SubscriptionEventListener
-import kotlinx.android.synthetic.main.activity_line_data.*
+import com.tbruyelle.rxpermissions2.RxPermissions
+import kotlinx.android.synthetic.main.activity_pipeline_stream.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.textColor
 import org.jetbrains.anko.toast
 import java.util.*
 
 
-class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventListener, LineHistoryContract {
+class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventListener, LineHistoryContract, SeekBar.OnSeekBarChangeListener, GoogleMap.OnMarkerClickListener, ActivityCompat.OnRequestPermissionsResultCallback, LocationListener {
 
 
     private lateinit var lineMaster: LineMasterMap
@@ -47,15 +58,22 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     private val CHANNEL_NAME = "record_added"
     private val EVENT_NAME = "App\\Events\\NodeRecordEvent"
 
+    private lateinit var rxPermission: RuntimePermission
+    private lateinit var bounds: LatLngBounds.Builder
+    private lateinit var myLatLongBounds: LatLngBounds
+    private lateinit var myLocation: LatLng
+    private lateinit var locationManager: LocationManager
 
+    private val MIN_TIME: Long = 400.toLong()
+    private val MIN_DISTANCE: Float = 1000f
+
+
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_line_data)
+        setContentView(R.layout.activity_pipeline_stream)
         toolbar.title = ""
         setSupportActionBar(toolbar)
-
-
-
 
 
         lineMaster = intent.getSerializableExtra("lineData") as LineMasterMap
@@ -68,17 +86,19 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         tv_start_node_name.text = lineMaster.startNodeSN
-        tv_start_node_number.text = lineMaster.startNodePhone
+
 
         tv_start_node_sn_.text = lineMaster.startNodeSN
         tv_start_node_number_.text = lineMaster.startNodePhone
 
-
         tv_end_node_name.text = lineMaster.endNodeSN
-        tv_end_node_number.text = lineMaster.endNodePhone
+
 
         tv_end_node_sn_.text = lineMaster.endNodeSN
         tv_end_node_number_.text = lineMaster.endNodePhone
+
+
+        zoom_seekbar.setOnSeekBarChangeListener(this)
 
 
         lineHistoryPresenter = LineHistoryPresenter(this)
@@ -93,11 +113,31 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         channel.bind(EVENT_NAME, this)
         pusher.connect()
 
+        val rxPermissions = RxPermissions(this)
+        rxPermissions
+                .request(Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) // ask single or multiple permission once
+                .subscribe { granted ->
+                    if (granted!!) {
+                        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+
+                    } else {
+
+                    }
+                }
+
+
+        my_location_fab.setOnClickListener { view ->
+            var cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, zoom_seekbar.progress.toFloat());
+            mMap.animateCamera(cameraUpdate);
+        }
+
 
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main,menu)
+        menuInflater.inflate(R.menu.menu_main, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -129,7 +169,7 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
             Log.e("Maps Style Log", "Style parsing failed.")
         }
 
-        var bounds = LatLngBounds.builder()
+        bounds = LatLngBounds.builder()
 
         bounds.include(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
         bounds.include(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
@@ -138,7 +178,8 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         var startNodeMarker = MarkerOptions()
                 .position(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
                 .title(lineMaster!!.startNodeSN)
-        var endNodeMarker = MarkerOptions().position(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
+        var endNodeMarker = MarkerOptions()
+                .position(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
                 .title(lineMaster!!.endNodeSN)
 
 
@@ -146,7 +187,7 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         nodeList.add(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
         nodeList.add(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, 12f))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, zoom_seekbar.progress.toFloat()))
         mMap.addPolyline(PolylineOptions().addAll(nodeList).width(12f)
                 .color(Color.RED))
 
@@ -162,7 +203,6 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
 
             mMap.isMyLocationEnabled = true
-            mMap.uiSettings.isMyLocationButtonEnabled = true
 
 
         } else {
@@ -170,9 +210,15 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         }
 
 
+        mMap.setOnMarkerClickListener(this)
+
+
+
 
         mMap.addMarker(startNodeMarker)
         mMap.addMarker(endNodeMarker)
+        mMap.uiSettings.isMyLocationButtonEnabled = true
+        mMap.uiSettings.isScrollGesturesEnabled = false
     }
 
     override fun onEvent(channel: String?, event: String?, data: String?) {
@@ -266,6 +312,53 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
     override fun hideLoading() {
         progress_bar.visibility = View.GONE
+    }
+
+
+    //Seekbar Listener
+
+    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, zoom_seekbar.progress.toFloat()))
+    }
+
+    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+    }
+
+    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+    }
+
+
+    //Marker CLick
+
+    override fun onMarkerClick(marker: Marker?): Boolean {
+        var gmapsIntentUri = Uri.parse("google.navigation:q=${marker!!.position.latitude},${marker!!.position.longitude}")
+        var mapIntent = Intent(Intent.ACTION_VIEW, gmapsIntentUri)
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
+
+        return true
+    }
+
+
+    //Location Listener
+    override fun onLocationChanged(location: Location?) {
+        var latLng = LatLng(location!!.getLatitude(), location!!.getLongitude());
+        myLocation = latLng
+        locationManager.removeUpdates(this);
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+
+    }
+
+    override fun onProviderEnabled(provider: String?) {
+
+    }
+
+    override fun onProviderDisabled(provider: String?) {
+
     }
 
 

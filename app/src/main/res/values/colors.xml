@@ -9,6 +9,9 @@
     <color name="transparent_header">#99000000</color>
     <color name="transparent_dark">#D3D3D3</color>
 
+
+    <color name="black_pick">#181F25</color>
+
     <color name="google_blue">#4285F4</color>
     <color name="google_red">#DB4437</color>
     <color name="google_yellow">#F4B400</color>
