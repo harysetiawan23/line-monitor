@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -23,9 +22,9 @@ import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import com.example.harry.linemonitor.R
 import com.example.harry.linemonitor.data.LineHistory
-import com.example.harry.linemonitor.data.LineMasterMap
 import com.example.harry.linemonitor.data.LineRecords
 import com.example.harry.linemonitor.data.LineRecordsItem
+import com.example.harry.linemonitor.data.NodeMaster
 import com.example.harry.linemonitor.view.contract.LineHistoryContract
 import com.example.harry.linemonitor.view.presenter.LineHistoryPresenter
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -38,18 +37,17 @@ import com.pusher.client.Pusher
 import com.pusher.client.PusherOptions
 import com.pusher.client.channel.SubscriptionEventListener
 import com.tbruyelle.rxpermissions2.RxPermissions
-import kotlinx.android.synthetic.main.activity_pipeline_stream.*
+import kotlinx.android.synthetic.main.activity_node_stream.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.textColor
 import org.jetbrains.anko.toast
-import java.util.*
 
 
-class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventListener, LineHistoryContract, SeekBar.OnSeekBarChangeListener, GoogleMap.OnMarkerClickListener, ActivityCompat.OnRequestPermissionsResultCallback, LocationListener {
+class NodeStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventListener, LineHistoryContract, SeekBar.OnSeekBarChangeListener, GoogleMap.OnMarkerClickListener, ActivityCompat.OnRequestPermissionsResultCallback, LocationListener {
 
 
-    private lateinit var lineMaster: LineMasterMap
+    private lateinit var nodeMaster: NodeMaster
     private lateinit var mMap: GoogleMap
     private lateinit var lineHistoryPresenter: LineHistoryPresenter
     private lateinit var pusher: Pusher
@@ -72,12 +70,12 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_pipeline_stream)
+        setContentView(R.layout.activity_node_stream)
         toolbar.title = ""
         setSupportActionBar(toolbar)
 
 
-        lineMaster = intent.getSerializableExtra("lineData") as LineMasterMap
+        nodeMaster = intent.getSerializableExtra("nodeData") as NodeMaster
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -86,24 +84,19 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        tv_start_node_name.text = lineMaster.startNodeSN
+        tv_start_node_name.text = nodeMaster.sn
 
 
-        tv_start_node_sn_.text = lineMaster.startNodeSN
-        tv_start_node_number_.text = lineMaster.startNodePhone
+        tv_start_node_sn_.text = nodeMaster.sn
+        tv_start_node_number_.text = nodeMaster.phoneNumber
 
-        tv_end_node_name.text = lineMaster.endNodeSN
-
-
-        tv_end_node_sn_.text = lineMaster.endNodeSN
-        tv_end_node_number_.text = lineMaster.endNodePhone
 
 
         zoom_seekbar.setOnSeekBarChangeListener(this)
 
 
         lineHistoryPresenter = LineHistoryPresenter(this)
-        lineHistoryPresenter.getLineHistory(lineMaster.id.toString())
+        lineHistoryPresenter.getLineHistory(nodeMaster.id.toString())
 
         val options = PusherOptions()
         options.setCluster(PUSHER_APP_CLUSTER)
@@ -146,7 +139,7 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> finish()
-            R.id.edit_pipeline -> startActivity<EditPipeLine>("lineDetails" to lineMaster)
+            R.id.edit_pipeline -> startActivity<EditPipeLine>("nodeDetail" to nodeMaster)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -172,26 +165,11 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         }
 
         bounds = LatLngBounds.builder()
+        var nodeMarker = MarkerOptions()
+                .position(LatLng(nodeMaster!!.lat!!.toDouble(), nodeMaster!!.lng!!.toDouble()))
+                .title(nodeMaster!!.sn)
 
-        bounds.include(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
-        bounds.include(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
-
-
-        var startNodeMarker = MarkerOptions()
-                .position(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
-                .title(lineMaster!!.startNodeSN)
-        var endNodeMarker = MarkerOptions()
-                .position(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
-                .title(lineMaster!!.endNodeSN)
-
-
-        var nodeList = ArrayList<LatLng>()
-        nodeList.add(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
-        nodeList.add(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
-
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, zoom_seekbar.progress.toFloat()))
-        mMap.addPolyline(PolylineOptions().addAll(nodeList).width(12f)
-                .color(Color.RED))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(nodeMaster!!.lat!!.toDouble(), nodeMaster!!.lng!!.toDouble()), zoom_seekbar.progress.toFloat()))
 
         mMap.isTrafficEnabled = true
         mMap.isBuildingsEnabled = true
@@ -215,10 +193,8 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         mMap.setOnMarkerClickListener(this)
 
 
+        mMap.addMarker(nodeMarker)
 
-
-        mMap.addMarker(startNodeMarker)
-        mMap.addMarker(endNodeMarker)
         mMap.uiSettings.isMyLocationButtonEnabled = true
         mMap.uiSettings.isScrollGesturesEnabled = false
     }
@@ -236,42 +212,9 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     fun updateNodRecords(data: LineRecords) {
         try {
             data.lineRecords?.forEach { lineRecordData: LineRecordsItem? ->
-                if (lineMaster.id == lineRecordData!!.lineId) {
+                if (nodeMaster.id == lineRecordData!!.lineId) {
                     tv_start_node_flow.text = "%.0f".format(lineRecordData!!.lastStartNodeFlow)
                     tv_start_node_pressure.text = "%.1f".format(lineRecordData!!.lastStartNodePressure)
-
-
-                    tv_end_node_flow.text = "%.0f".format(lineRecordData!!.lastEndNodeFlow)
-                    tv_end_node_pressure.text = "%.1f".format(lineRecordData!!.lastEndNodePressure)
-
-
-                    if (lineRecordData!!.flowRatio!! > 0) {
-                        tv_flow_rate_loss.text = "%.0f".format(lineRecordData!!.flowRatio!! * 100) + " %"
-                        tv_flow_rate_loss.textColor = ctx.resources.getColor(R.color.google_red)
-                        iv_flow_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_down))
-                    } else if (lineRecordData!!.flowRatio!! < 0) {
-                        tv_flow_rate_loss.text = "%.0f".format(lineRecordData!!.flowRatio!! * 100) + " %"
-                        tv_flow_rate_loss.textColor = ctx.resources.getColor(R.color.google_green)
-                        iv_flow_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_arrow_up))
-                    } else {
-                        iv_flow_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_updown))
-                        tv_flow_rate_loss.text = "%.0f".format(lineRecordData!!.flowRatio!! * 100) + " %"
-                    }
-
-
-                    if (lineRecordData!!.pressureRatio!! > 0) {
-                        tv_pressure_loss.text = "%.0f".format(lineRecordData!!.pressureRatio!! * 100) + " %"
-                        tv_pressure_loss.textColor = ctx.resources.getColor(R.color.google_red)
-                        iv_pressure_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_down))
-                    } else if (lineRecordData!!.pressureRatio!! < 0) {
-                        tv_pressure_loss.text = "%.0f".format(lineRecordData!!.pressureRatio!! * 100) + " %"
-                        tv_pressure_loss.textColor = ctx.resources.getColor(R.color.google_green)
-                        iv_pressure_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_arrow_up))
-                    } else {
-                        iv_pressure_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_updown))
-                        tv_pressure_loss.text = "%.0f".format(lineRecordData!!.pressureRatio!! * 100) + " %"
-                    }
-
 
                 }
             }

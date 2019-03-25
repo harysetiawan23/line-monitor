@@ -11,7 +11,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.support.design.widget.NavigationView
-import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -23,6 +22,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.SeekBar
+import com.arlib.floatingsearchview.FloatingSearchView
 import com.example.harry.linemonitor.R
 import com.example.harry.linemonitor.data.LineMasterMap
 import com.example.harry.linemonitor.view.adapter.HorizontalLineAdapter
@@ -42,7 +42,7 @@ import java.util.*
 
 class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LineMapContract, HorizontalLineAdapter.OnItemClickListener,
         View.OnClickListener, SeekBar.OnSeekBarChangeListener,
-        LocationListener {
+        LocationListener, FloatingSearchView.OnQueryChangeListener {
 
 
     private lateinit var linePresenter: LineMapsPresenter
@@ -57,22 +57,24 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
     private val MIN_DISTANCE: Float = 1000f
     private lateinit var myLatLongBounds: LatLngBounds
     private lateinit var myLocation: LatLng
-
+    private lateinit var lineAdapter: HorizontalLineAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_landing)
         toolbar.title = ""
-        toolbar.navigationIcon = resources.getDrawable(R.drawable.ic_menu)
         setSupportActionBar(toolbar)
 
+        thisActivity = this
+        val toggle = ActionBarDrawerToggle(thisActivity, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        drawer_layout.addDrawerListener(toggle)
+        toggle.syncState()
+
         zoom_seekbar.setOnSeekBarChangeListener(this)
-
-
+        toolbar.setNavigationIcon(ctx.getDrawable(R.drawable.ic_menu_button_of_three_horizontal_lines))
 
         linePresenter = LineMapsPresenter(this)
-        thisActivity = this
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
 
@@ -85,13 +87,11 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
             mMap.animateCamera(cameraUpdate);
         }
 
-        val toggle = ActionBarDrawerToggle(thisActivity, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer_layout.addDrawerListener(toggle)
-
-        toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
 
+
+        floating_search_view.setOnQueryChangeListener(this)
 
     }
 
@@ -164,8 +164,8 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
         listLine = ArrayList<ArrayList<LatLng>>()
         listPin = ArrayList<MarkerOptions>()
 
-
-        rv_line_list.setAdapter(HorizontalLineAdapter(data, this, ctx))
+        lineAdapter = HorizontalLineAdapter(data, this, ctx)
+        rv_line_list.setAdapter(lineAdapter)
 
         data?.forEach { lineData: LineMasterMap? ->
             var line = ArrayList<LatLng>()
@@ -182,9 +182,6 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
             var markerOptionEnd = MarkerOptions()
                     .position(LatLng(lineData!!.endNodeLat!!.toDouble(), lineData!!.endNodeLng!!.toDouble()))
                     .title(lineData!!.endNodeSN)
-
-
-
 
             listPin.add(markerOptionStart)
             listPin.add(markerOptionEnd)
@@ -208,6 +205,12 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
 
 
         mapFragment.getMapAsync(this)
+
+
+        floating_search_view.setOnQueryChangeListener(FloatingSearchView.OnQueryChangeListener { oldQuery, newQuery ->
+            lineAdapter.filter.filter(newQuery)
+            lineAdapter.notifyDataSetChanged()
+        })
     }
 
     override fun onError(data: String) {
@@ -233,7 +236,7 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
 
             R.id.tv_details -> {
                 Log.d("SelectedLine", selectedLine.toString())
-                startActivity<LineDataV2>("lineData" to selectedLine)
+                startActivity<PipelineStream>("lineData" to selectedLine)
             }
         }
     }
@@ -272,24 +275,14 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            R.id.nav_camera -> {
-                // Handle the camera action
+            R.id.nav_node_list -> {
+                startActivity<NodeList>()
             }
-            R.id.nav_gallery -> {
+            R.id.nav_line_list -> {
+                startActivity<PipeLineList>()
+            }
 
-            }
-            R.id.nav_slideshow -> {
 
-            }
-            R.id.nav_manage -> {
-
-            }
-            R.id.nav_share -> {
-
-            }
-            R.id.nav_send -> {
-
-            }
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)
@@ -330,6 +323,11 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
     }
 
     override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+    }
+
+    //On Search Listener
+    override fun onSearchTextChanged(oldQuery: String?, newQuery: String?) {
 
     }
 

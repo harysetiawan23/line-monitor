@@ -12,16 +12,16 @@ import android.widget.TextView
 import com.amulyakhare.textdrawable.TextDrawable
 import com.example.harry.linemonitor.R
 import com.example.harry.linemonitor.data.LineMaster
-import com.example.harry.linemonitor.data.LineMasterMap
-import com.example.harry.linemonitor.view.activity.PipelineStream
+import com.example.harry.linemonitor.data.NodeMaster
+import com.example.harry.linemonitor.view.activity.NodeStream
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.startActivity
 import java.util.*
 
 
-class LineListAdapter(data: List<LineMasterMap?>?, context:Context) : BaseAdapter() {
+class NodeListAdapter(data: List<NodeMaster ?>?, context:Context) : BaseAdapter() {
     var context = context
-    var lineList = data
+    var nodeList = data
 
     private class ViewHolder {
 
@@ -43,7 +43,7 @@ class LineListAdapter(data: List<LineMasterMap?>?, context:Context) : BaseAdapte
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         //Line Data
-        var lineData = lineList!!.get(position)
+        var nodeMaster = nodeList!!.get(position)
 
         var convertView = convertView
         // Get the data item for this position
@@ -83,33 +83,31 @@ class LineListAdapter(data: List<LineMasterMap?>?, context:Context) : BaseAdapte
 
         val rand = Random()
         val fontDrawable = TextDrawable.builder()
-                .buildRoundRect((position+1).toString(), viewHolder.getRandomColor(context, rand.nextInt(4)), 62)
+                .buildRoundRect((1+position).toString(), viewHolder.getRandomColor(context, rand.nextInt(4)), 62)
 
 
-        viewHolder.lineName!!.text = lineData!!.name
-        viewHolder.lineDesc!!.text = "${lineData!!.start} - ${lineData!!.end}"
+        viewHolder.lineName!!.text = nodeMaster!!.sn
+        viewHolder.lineDesc!!.text = "${nodeMaster!!.phoneNumber} \n${nodeMaster!!.lat} - ${nodeMaster!!.lng}"
         viewHolder.lineImg!!.setImageDrawable(fontDrawable)
-        viewHolder.ll_line_item?.onClick {
-            context.startActivity<PipelineStream>("lineData" to lineData)
+        viewHolder.ll_line_item!!.onClick {
+            context.startActivity<NodeStream>("nodeData" to nodeMaster)
         }
-
-
         return convertView
     }
 
     override fun getItem(position: Int): Any {
-        return lineList!!.get(position)!!
+        return nodeList!!.get(position)!!
     }
 
     override fun getItemId(position: Int): Long {
-        return lineList!!.get(position)!!.id!!.toLong()
+        return nodeList!!.get(position)!!.id!!.toLong()
     }
 
     override fun getCount(): Int {
-        if (lineList == null) {
+        if (nodeList == null) {
             return 0
         }
-        return lineList!!.size
+        return nodeList!!.size
     }
 
 }

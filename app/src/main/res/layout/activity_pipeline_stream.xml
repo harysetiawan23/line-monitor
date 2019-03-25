@@ -30,11 +30,11 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:fontFamily="@font/cush_reguler"
+            android:fontFamily="@font/sf_bold"
             android:gravity="center"
             android:text="Pipeline Statistic"
             android:textColor="#000"
-            android:textSize="16dp"
+            android:textSize="18dp"
             android:textStyle="bold" />
 
         <android.support.v7.widget.Toolbar

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context=".view.activity.MapsActivity">
+    tools:context=".view.activity.LandingActivity">
 
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
@@ -27,14 +27,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:fontFamily="@font/cush_reguler"
+            android:fontFamily="@font/sf_bold"
             android:gravity="center"
             android:text="Dashboard"
-            android:textSize="16dp"
+            android:textColor="@color/black_pick"
+            android:textSize="18dp"
             android:textStyle="bold" />
 
         <android.support.v7.widget.Toolbar
-            app:navigationIcon="@drawable/ic_menu"
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
@@ -55,7 +55,7 @@
             android:layout_height="match_parent"
             android:layout_below="@+id/progress_bar"
             app:floatingSearch_close_search_on_keyboard_dismiss="true"
-            app:floatingSearch_leftActionMode="noLeftAction"
+            app:floatingSearch_leftActionMode="showSearch"
             app:floatingSearch_searchBarMarginLeft="12dp"
             app:floatingSearch_searchBarMarginRight="12dp"
             app:floatingSearch_searchHint="Search Line"
@@ -101,18 +101,18 @@
 
 
     <SeekBar
-        android:thumb="@drawable/custom_thumb_seekbar"
-        android:progressDrawable="@drawable/custom_seekbar_progress"
-        android:max="18"
-        android:min="9"
-        android:progress="12"
         android:id="@+id/zoom_seekbar"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center|right"
         android:layout_marginRight="-82dp"
         android:layout_marginBottom="32dp"
-        android:rotation="270" />
+        android:max="18"
+        android:min="9"
+        android:progress="12"
+        android:progressDrawable="@drawable/custom_seekbar_progress"
+        android:rotation="270"
+        android:thumb="@drawable/custom_thumb_seekbar" />
 
 </FrameLayout>
 

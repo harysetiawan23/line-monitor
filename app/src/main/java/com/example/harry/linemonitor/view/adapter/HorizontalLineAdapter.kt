@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import com.amulyakhare.textdrawable.TextDrawable
@@ -16,12 +18,16 @@ import com.example.harry.linemonitor.view.activity.PipelineStream
 import org.jetbrains.anko.find
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 import java.util.*
+import kotlin.collections.ArrayList
 
-class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: OnItemClickListener, context: Context) : RecyclerView.Adapter<HorizontalLineAdapter.viewHolder>() {
+class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: OnItemClickListener, context: Context) : RecyclerView.Adapter<HorizontalLineAdapter.viewHolder>(), Filterable {
 
-    var lineList = data
-    var context = context
+
+    private var lineListFiltered = data
+    private var lineList = data
+    private var context = context
 
     interface OnItemClickListener {
         fun onHorizontalItemClick(item: LineMasterMap)
@@ -44,6 +50,35 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
         holder.bind(lineList!!.get(position)!!, listener, context)
     }
 
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(charSequence: CharSequence): Filter.FilterResults {
+                val charString = charSequence.toString()
+                if (charString.isEmpty()) {
+                    lineListFiltered = lineList
+                } else {
+                    var filteredList: ArrayList<LineMasterMap?>? = ArrayList()
+                    context.toast(charString.toLowerCase())
+                    for (row in lineList!!) {
+                        if (row!!.name!!.toLowerCase().contains(charString.toLowerCase()) || row!!.startNodeSN!!.toLowerCase().contains(charString.toLowerCase()) || row!!.endNodeSN!!.toLowerCase().contains(charString.toLowerCase()) ) {
+                            filteredList!!.add(row)
+                        }
+                    }
+
+                    lineListFiltered = filteredList
+                }
+
+                val filterResults = Filter.FilterResults()
+                filterResults.values = lineListFiltered
+                return filterResults
+            }
+
+            override fun publishResults(charSequence: CharSequence, filterResults: Filter.FilterResults) {
+                lineList = filterResults.values as List<LineMasterMap>
+                notifyDataSetChanged()
+            }
+        }
+    }
 
     class viewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var lineName: TextView
@@ -54,7 +89,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
         var lineDrawable: ImageView
         var lineCard: CardView
         var lineDesc: TextView
-        var lineAction:TextView
+        var lineAction: TextView
 
         init {
             lineName = itemView.find(R.id.tv_line_name)

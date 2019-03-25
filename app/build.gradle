@@ -101,7 +101,6 @@ dependencies {
     //Sliding up panel
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
 
-
     //Request
     implementation 'com.github.tbruyelle:rxpermissions:0.10.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.1'
