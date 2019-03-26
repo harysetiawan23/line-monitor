@@ -22,7 +22,6 @@
             android:name=".view.activity.PipelineStream"
             android:label="@string/title_activity_line_data"
             android:theme="@style/AppTheme" />
-
         <activity
             android:name=".view.activity.NodeStream"
             android:label="@string/title_activity_line_data"
@@ -60,7 +59,8 @@
         <activity
             android:name=".view.activity.NodeList"
             android:label="@string/title_activity_node_list"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".view.activity.EditNode"></activity>
     </application>
 
 </manifest>

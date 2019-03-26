@@ -9,6 +9,7 @@
         <item name="colorAccent">@color/google_red</item>
         <item name="android:textViewStyle">@style/CushTextViewStyle</item>
         <item name="android:buttonStyle">@style/CushButtonStyle</item>
+        <item name="android:editTextStyle">@style/CushEditextStyle</item>
     </style>
 
     <!--<style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Light">-->
@@ -16,6 +17,10 @@
     <!--</style>-->
 
     <style name="CushTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="CushEditextStyle" parent="android:Widget.EditText">
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 

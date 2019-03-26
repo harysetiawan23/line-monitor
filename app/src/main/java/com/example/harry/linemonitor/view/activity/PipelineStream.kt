@@ -146,7 +146,7 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> finish()
-            R.id.edit_pipeline -> startActivity<EditPipeLine>("lineDetails" to lineMaster)
+            R.id.edit_pipeline -> startActivity<EditPipeLine>("lineData" to lineMaster)
         }
         return super.onOptionsItemSelected(item)
     }

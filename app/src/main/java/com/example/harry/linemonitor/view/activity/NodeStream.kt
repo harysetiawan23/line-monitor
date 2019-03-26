@@ -57,9 +57,6 @@ class NodeStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventLis
     private val CHANNEL_NAME = "record_added"
     private val EVENT_NAME = "App\\Events\\NodeRecordEvent"
 
-    private lateinit var rxPermission: RuntimePermission
-    private lateinit var bounds: LatLngBounds.Builder
-    private lateinit var myLatLongBounds: LatLngBounds
     private lateinit var myLocation: LatLng
     private lateinit var locationManager: LocationManager
 
@@ -139,7 +136,7 @@ class NodeStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventLis
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> finish()
-            R.id.edit_pipeline -> startActivity<EditPipeLine>("nodeDetail" to nodeMaster)
+            R.id.edit_pipeline -> startActivity<EditNode>("nodeData" to nodeMaster)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -164,7 +161,6 @@ class NodeStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventLis
             Log.e("Maps Style Log", "Style parsing failed.")
         }
 
-        bounds = LatLngBounds.builder()
         var nodeMarker = MarkerOptions()
                 .position(LatLng(nodeMaster!!.lat!!.toDouble(), nodeMaster!!.lng!!.toDouble()))
                 .title(nodeMaster!!.sn)
@@ -263,7 +259,7 @@ class NodeStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventLis
     //Seekbar Listener
 
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, zoom_seekbar.progress.toFloat()))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(nodeMaster!!.lat!!.toDouble(), nodeMaster!!.lng!!.toDouble()), zoom_seekbar.progress.toFloat()))
     }
 
     override fun onStartTrackingTouch(seekBar: SeekBar?) {

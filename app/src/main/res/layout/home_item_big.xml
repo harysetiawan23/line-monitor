@@ -8,7 +8,7 @@
     android:layout_marginTop="12dp"
     android:layout_marginRight="3dp"
     android:layout_marginBottom="12dp"
-    android:background="@color/background"
+    app:cardBackgroundColor="#212121"
     app:cardCornerRadius="6dp"
     app:cardElevation="3dp">
 
@@ -22,6 +22,38 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tv_line_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Marga 001"
+                android:textColor="@color/background"
+                android:textSize="22dp"
+                android:textStyle="bold" />
+
+
+            <TextView
+                android:id="@+id/tv_line_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Start - Stop"
+                android:textColor="@color/background" />
+
+        </LinearLayout>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.6dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:background="#d3d3d3" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center|left"
             android:orientation="horizontal">
 
@@ -29,12 +61,13 @@
                 android:id="@+id/fontDrawable"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:layout_marginRight="12dp"
+                />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -43,42 +76,22 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/cush_reguler"
                     android:text="8 km"
+                    android:textColor="@color/background"
                     android:textSize="22dp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/tv_line_name"
+                    android:id="@+id/tv_line_manufacture"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="MARGA 002"
-                    android:textAllCaps="true" />
+                    android:text="Rucika"
+                    android:textAllCaps="true"
+                    android:textColor="@color/background" />
             </LinearLayout>
 
 
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.6dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="6dp"
-            android:background="#d3d3d3" />
-
-
-        <TextView
-            android:id="@+id/tv_line_manufacture"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="WAVIN"
-            android:textSize="22dp"
-            android:textStyle="bold" />
-
-
-        <TextView
-            android:id="@+id/tv_line_desc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Start - Stop" />
 
         <View
             android:layout_width="match_parent"
@@ -97,14 +110,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/sf_bold"
-                android:text="Dim : " />
+                android:text="Dim : "
+                android:textColor="@color/background" />
 
             <TextView
                 android:id="@+id/tv_line_diameter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="6dp"
-                android:text="3.50 inch" />
+                android:text="3.50 inch"
+                android:textColor="@color/background" />
 
         </LinearLayout>
 
@@ -120,14 +135,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/sf_bold"
-                android:text="Thicknes : " />
+                android:text="Thicknes : "
+                android:textColor="@color/background" />
 
             <TextView
                 android:id="@+id/tv_line_thickness"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="6dp"
-                android:text="30 mm" />
+                android:text="30 mm"
+                android:textColor="@color/background" />
 
         </LinearLayout>
 
@@ -137,7 +154,7 @@
             android:layout_width="128dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
-            android:background="@drawable/bg_rounded_button"
+            android:background="@drawable/bg_rounded_button_green"
             android:fontFamily="@font/cush_reguler"
             android:gravity="center"
             android:paddingLeft="32dp"

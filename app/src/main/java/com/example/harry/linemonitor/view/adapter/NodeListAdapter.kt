@@ -82,8 +82,15 @@ class NodeListAdapter(data: List<NodeMaster ?>?, context:Context) : BaseAdapter(
 
 
         val rand = Random()
+        var currColor = 0
+        val currRandom = rand.nextInt(4)
+        val nextRandom = rand.nextInt(4)
+
+        if (currRandom != nextRandom) {
+            currColor = nextRandom
+        }
         val fontDrawable = TextDrawable.builder()
-                .buildRoundRect((1+position).toString(), viewHolder.getRandomColor(context, rand.nextInt(4)), 62)
+                .buildRoundRect((1+position).toString(), viewHolder.getRandomColor(context, currColor), 62)
 
 
         viewHolder.lineName!!.text = nodeMaster!!.sn

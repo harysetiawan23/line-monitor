@@ -60,7 +60,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
                     var filteredList: ArrayList<LineMasterMap?>? = ArrayList()
                     context.toast(charString.toLowerCase())
                     for (row in lineList!!) {
-                        if (row!!.name!!.toLowerCase().contains(charString.toLowerCase()) || row!!.startNodeSN!!.toLowerCase().contains(charString.toLowerCase()) || row!!.endNodeSN!!.toLowerCase().contains(charString.toLowerCase()) ) {
+                        if (row!!.name!!.toLowerCase().contains(charString.toLowerCase()) || row!!.startNodeSN!!.toLowerCase().contains(charString.toLowerCase()) || row!!.endNodeSN!!.toLowerCase().contains(charString.toLowerCase())) {
                             filteredList!!.add(row)
                         }
                     }
@@ -116,8 +116,16 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
 
 
             val rand = Random()
+            val currRandom = rand.nextInt(4)
+            val nextRandom = rand.nextInt(4)
+
+            var currColor = 0
+            if (currRandom != nextRandom) {
+                currColor = nextRandom
+            }
+
             val fontDrawable = TextDrawable.builder()
-                    .buildRoundRect(item!!.name!!.get(0).toString(), getRandomColor(context, rand.nextInt(4)), 62)
+                    .buildRoundRect(item!!.name!!.get(0).toString(), getRandomColor(context, currColor), 62)
 
 
             val animation = AnimationUtils

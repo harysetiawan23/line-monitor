@@ -32,7 +32,7 @@
             android:layout_height="?attr/actionBarSize"
             android:fontFamily="@font/sf_bold"
             android:gravity="center"
-            android:text="Pipeline Statistic"
+            android:text="Node Statistic"
             android:textColor="#000"
             android:textSize="18dp"
             android:textStyle="bold" />
