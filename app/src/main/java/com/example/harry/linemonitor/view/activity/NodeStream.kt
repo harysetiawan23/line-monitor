@@ -21,17 +21,17 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import com.example.harry.linemonitor.R
-import com.example.harry.linemonitor.data.LineHistory
-import com.example.harry.linemonitor.data.LineRecords
-import com.example.harry.linemonitor.data.LineRecordsItem
-import com.example.harry.linemonitor.data.NodeMaster
+import com.example.harry.linemonitor.data.*
 import com.example.harry.linemonitor.view.contract.LineHistoryContract
 import com.example.harry.linemonitor.view.presenter.LineHistoryPresenter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 import com.pusher.client.Pusher
 import com.pusher.client.PusherOptions
@@ -40,7 +40,6 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_node_stream.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.textColor
 import org.jetbrains.anko.toast
 
 
@@ -199,16 +198,16 @@ class NodeStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventLis
         runOnUiThread {
             println("Received event with data: $data")
             val gson = Gson()
-            val lineRecords = gson.fromJson(data, LineRecords::class.java)
+            val lineRecords = gson.fromJson(data, LineRealtimeData::class.java)
 
             updateNodRecords(lineRecords)
         }
     }
 
-    fun updateNodRecords(data: LineRecords) {
+    fun updateNodRecords(data: LineRealtimeData) {
         try {
-            data.lineRecords?.forEach { lineRecordData: LineRecordsItem? ->
-                if (nodeMaster.id == lineRecordData!!.lineId) {
+            data!!.lineRecords?.forEach { lineRecordData: LineRecordsItem? ->
+                if (nodeMaster.id == lineRecordData!!.startNodeId || nodeMaster.id == lineRecordData!!.endNodeId) {
                     tv_start_node_flow.text = "%.0f".format(lineRecordData!!.lastStartNodeFlow)
                     tv_start_node_pressure.text = "%.1f".format(lineRecordData!!.lastStartNodePressure)
 

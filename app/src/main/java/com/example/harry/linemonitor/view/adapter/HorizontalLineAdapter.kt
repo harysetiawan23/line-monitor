@@ -1,16 +1,12 @@
 package com.example.harry.linemonitor.view.adapter
 
 import android.content.Context
-import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.Filter
-import android.widget.Filterable
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import com.amulyakhare.textdrawable.TextDrawable
 import com.example.harry.linemonitor.R
 import com.example.harry.linemonitor.data.LineMasterMap
@@ -35,7 +31,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
 
 
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int): viewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.home_item_big, parent, false)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.home_item_big_invert, parent, false)
         return viewHolder(v)
     }
 
@@ -87,9 +83,9 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
         var lineThickness: TextView
         var lineManufacture: TextView
         var lineDrawable: ImageView
-        var lineCard: CardView
+        var line_pin: ImageView
         var lineDesc: TextView
-        var lineAction: TextView
+        var lineAction: LinearLayout
 
         init {
             lineName = itemView.find(R.id.tv_line_name)
@@ -98,7 +94,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
             lineManufacture = itemView.find(R.id.tv_line_manufacture)
             lineThickness = itemView.find(R.id.tv_line_thickness)
             lineDrawable = itemView.find(R.id.fontDrawable)
-            lineCard = itemView.find(R.id.cv_line_card)
+            line_pin = itemView.find(R.id.iv_line_pin)
             lineDesc = itemView.find(R.id.tv_line_desc)
             lineAction = itemView.find(R.id.tv_details)
 
@@ -108,7 +104,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
         fun bind(item: LineMasterMap, listener: OnItemClickListener, context: Context) {
             lineName.text = item.name
             itemView.setOnClickListener { listener.onHorizontalItemClick(item) }
-            lineDistance.text = "${item!!.distance.toString()} km"
+            lineDistance.text = "${item!!.distance.toString()}"
             lineDiameter.text = "${item!!.diameter.toString()} inch"
             lineThickness.text = "${item!!.thicknes.toString()} inch"
             lineManufacture.text = "${item!!.manufacture.toString()}"
@@ -131,7 +127,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
             val animation = AnimationUtils
                     .loadAnimation(context, R.anim.abc_fade_in)
             animation.duration = position * 500.toLong()
-            lineCard.startAnimation(animation)
+            line_pin.startAnimation(animation)
 
 
             lineDrawable.setImageDrawable(fontDrawable)

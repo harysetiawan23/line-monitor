@@ -14,46 +14,34 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="?attr/actionBarSize"
         tools:context=".view.activity.MapsActivity" />
+
 
     <RelativeLayout
         android:id="@+id/fl_line_info"
         android:layout_width="match_parent"
         android:layout_height="220dp"
-        android:background="@drawable/bg_gradient_header">
+        android:background="@drawable/bg_gradient_header"
+        android:visibility="gone">
 
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:fontFamily="@font/sf_bold"
-            android:gravity="center"
-            android:text="Dashboard"
-            android:textColor="@color/black_pick"
-            android:textSize="18dp"
-            android:textStyle="bold" />
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
-            app:title="" />
+            android:visibility="gone"
+            app:title="">
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar"
-            android:indeterminate="true" />
+
+        </android.support.v7.widget.Toolbar>
+
 
         <com.arlib.floatingsearchview.FloatingSearchView
             android:id="@+id/floating_search_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/progress_bar"
+            android:visibility="gone"
             app:floatingSearch_close_search_on_keyboard_dismiss="true"
             app:floatingSearch_leftActionMode="showSearch"
             app:floatingSearch_searchBarMarginLeft="12dp"
@@ -67,52 +55,240 @@
 
     </RelativeLayout>
 
-    <LinearLayout
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="6dp">
+
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:elevation="6dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:elevation="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="12dp"
+                android:paddingTop="6dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="12dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="6dp"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_qr_code_scan"
+                    android:tint="@color/border_dark" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_rounded_grey"
+                    android:gravity="center|left"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="12dp"
+                        android:padding="3dp"
+                        android:src="@drawable/ic_magnifier"
+                        android:tint="@color/border_color" />
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_rounded_grey"
+                        android:cursorVisible="false"
+                        android:focusableInTouchMode="true"
+                        android:fontFamily="@font/sf_bold"
+                        android:hint="Search"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="23dp"
+                        android:textColor="@color/border_color"
+                        android:textColorHint="@color/border_color"
+                        android:textSize="16dp" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="6dp"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_avatar"
+                    android:tint="@color/border_dark" />
+
+
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/toolbar"
+                android:indeterminate="true" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:orientation="horizontal"
+                android:paddingLeft="22dp"
+                android:paddingTop="12dp"
+                android:paddingRight="22dp"
+                android:paddingBottom="12dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top"
+                        android:src="@drawable/ic_pipe" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/sf_bold"
+                            android:text="3"
+                            android:textColor="@color/google_red" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/sf_bold"
+                            android:text="Pipeline"
+                            android:textColor="@color/border_dark"
+                            android:textSize="12dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <View
+                    android:layout_width="0.6dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="22dp"
+                    android:background="@color/border_color"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top"
+                        android:src="@drawable/ic_nodes" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/sf_bold"
+                            android:text="3"
+                            android:textColor="@color/black_pick" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/sf_bold"
+                            android:text="Nodes"
+                            android:textColor="@color/border_dark"
+                            android:textSize="12dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </android.support.design.widget.AppBarLayout>
+    </FrameLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@drawable/bg_gradient_footer"
-        android:elevation="3dp"
         android:orientation="vertical"
-        android:paddingTop="22dp"
-        android:paddingBottom="12dp">
+        android:paddingTop="22dp">
 
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_line_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="22dp" />
+            android:layout_marginTop="12dp" />
 
 
     </LinearLayout>
 
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/my_location_fab"
+    <LinearLayout
+        android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_margin="@dimen/fab_margin"
-        android:tint="#FFF"
-        app:srcCompat="@drawable/ic_gps_fixed_black_24dp" />
-
-
-    <SeekBar
-        android:id="@+id/zoom_seekbar"
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
         android:layout_gravity="center|right"
-        android:layout_marginRight="-82dp"
-        android:layout_marginBottom="32dp"
-        android:max="18"
-        android:min="9"
-        android:progress="12"
-        android:progressDrawable="@drawable/custom_seekbar_progress"
-        android:rotation="270"
-        android:thumb="@drawable/custom_thumb_seekbar" />
+        android:layout_marginRight="-92dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingTop="12dp"
+        android:rotation="270">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/my_location_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_margin="@dimen/fab_margin"
+            android:tint="#FFF"
+            app:srcCompat="@drawable/ic_gps_fixed_black_24dp" />
+
+        <SeekBar
+            android:id="@+id/zoom_seekbar"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:max="18"
+            android:min="9"
+            android:progress="12"
+            android:progressDrawable="@drawable/custom_seekbar_progress"
+            android:rotation="0"
+            android:thumb="@drawable/custom_thumb_seekbar" />
+
+
+    </LinearLayout>
+
 
 </FrameLayout>
 

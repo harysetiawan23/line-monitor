@@ -1,36 +1,46 @@
 package com.example.harry.linemonitor.data
 
-
 import com.google.gson.annotations.SerializedName
-import java.io.Serializable
 
 
 data class LineRecordsItem(
 
 	@field:SerializedName("lastStartNodePressure")
-	val lastStartNodePressure: Any? = null,
+	val lastStartNodePressure: Double? = null,
 
-	@field:SerializedName("lastEndNodeFlow")
-	val lastEndNodeFlow: Any? = null,
-
-	@field:SerializedName("user_id")
-	val userId: Int? = null,
+	@field:SerializedName("startNodeLiters")
+	val startNodeLiters: Double? = null,
 
 	@field:SerializedName("flowRatio")
 	val flowRatio: Double? = null,
 
 	@field:SerializedName("lastStartNodeFlow")
-	val lastStartNodeFlow: Any? = null,
+	val lastStartNodeFlow: Double? = null,
+
+	@field:SerializedName("endNodeId")
+	val endNodeId: Int? = null,
+
+	@field:SerializedName("endNodeLiters")
+	val endNodeLiters: Double? = null,
+
+	@field:SerializedName("startNodeId")
+	val startNodeId: Int? = null,
+
+	@field:SerializedName("lastEndNodeFlow")
+	val lastEndNodeFlow: Double? = null,
+
+	@field:SerializedName("user_id")
+	val userId: Int? = null,
 
 	@field:SerializedName("pressureRatio")
 	val pressureRatio: Double? = null,
 
-	@field:SerializedName("lastEndNodePressure")
-	val lastEndNodePressure: Any? = null,
+	@field:SerializedName("id")
+	val id: Int? = null,
 
-	@field:SerializedName("line_id")
-	val lineId: Int? = null,
+	@field:SerializedName("lastEndNodePressure")
+	val lastEndNodePressure: Double? = null,
 
 	@field:SerializedName("timestamp")
-	val timestamp: String? = null
-): Serializable
+	val timestamp: Any? = null
+)

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".view.activity.LineChartDetail">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/toolbar"
+                android:indeterminate="true" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:fontFamily="@font/sf_bold"
+                android:paddingLeft="22dp"
+                android:paddingRight="22dp"
+                android:text="Flow ( L / m ) vs Time (AVG Filter)"
+                android:textSize="22dp" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/cv_avg"
+                android:layout_width="match_parent"
+                android:layout_height="340dp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:fontFamily="@font/sf_bold"
+                android:paddingLeft="22dp"
+                android:paddingRight="22dp"
+                android:text="Flow ( L / m ) vs Time (MAX Filter)"
+                android:textSize="22dp" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/cv_max"
+                android:layout_width="match_parent"
+                android:layout_height="340dp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:fontFamily="@font/sf_bold"
+                android:paddingLeft="22dp"
+                android:paddingRight="22dp"
+                android:text="Flow ( L / m ) vs Time (MEDIAN Filter)"
+                android:textSize="22dp" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/cv_median"
+                android:layout_width="match_parent"
+                android:layout_height="340dp"
+                android:layout_marginBottom="12dp" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

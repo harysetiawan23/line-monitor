@@ -4,11 +4,16 @@
     <color name="background">#FFFFFF</color>
 
     <color name="border_color">#D3D3D3</color>
+    <color name="border_dark">#9E9DA2</color>
+    <color name="soft_grey">#F6F6F6</color>
 
     <color name="black_pick">#181F25</color>
 
     <color name="google_blue">#4285F4</color>
     <color name="google_red">#DB4437</color>
+    <color name="hold_google_red">#E80E48</color>
+    <color name="hold_google_green">#5D8115</color>
+
     <color name="google_yellow">#F4B400</color>
     <color name="google_green">#0F9D58</color>
 

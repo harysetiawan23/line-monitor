@@ -13,4 +13,8 @@
     <string name="title_activity_ecit_pipe_line">EcitPipeLine</string>
     <string name="title_activity_pipe_line_list">PipeLineList</string>
     <string name="title_activity_node_list">NodeList</string>
+    <string name="title_activity_register">Register</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -6,11 +6,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <!--
-         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
-         Google Maps Android API v2, but you must specify either coarse or fine
-         location permissions for the 'MyLocation' functionality. 
-    -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -19,9 +14,26 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".view.activity.LineChartDetail"
+            android:screenOrientation="landscape"></activity>
+        <activity
+            android:name=".view.activity.Register"
+            android:label="@string/title_activity_register"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".view.activity.PipelineStream"
             android:label="@string/title_activity_line_data"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".view.activity.LoginActivity"
+            android:label="@string/title_activity_line_data"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".view.activity.NodeStream"
             android:label="@string/title_activity_line_data"
@@ -41,13 +53,7 @@
         <activity
             android:name=".view.activity.LandingActivity"
             android:label="@string/title_activity_landing"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".view.activity.EditPipeLine"
             android:label="@string/title_activity_ecit_pipe_line"
@@ -60,7 +66,7 @@
             android:name=".view.activity.NodeList"
             android:label="@string/title_activity_node_list"
             android:theme="@style/AppTheme" />
-        <activity android:name=".view.activity.EditNode"></activity>
+        <activity android:name=".view.activity.EditNode" />
     </application>
 
 </manifest>

@@ -23,6 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/tv_line_name"
                 android:layout_width="match_parent"
@@ -62,8 +63,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_gravity="center"
-                android:layout_marginRight="12dp"
-                />
+                android:layout_marginRight="12dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -154,7 +154,7 @@
             android:layout_width="128dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
-            android:background="@drawable/bg_rounded_button_green"
+            android:background="@drawable/button_inverse"
             android:fontFamily="@font/cush_reguler"
             android:gravity="center"
             android:paddingLeft="32dp"

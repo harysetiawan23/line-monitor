@@ -228,24 +228,24 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:layout_marginRight="3dp"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="23dp"
+                    android:layout_marginRight="3dp"
                     android:layout_marginBottom="120dp"
-                    android:background="@drawable/bg_rounded_button_green"
+                    android:layout_weight="1"
+                    android:background="@drawable/button"
                     android:fontFamily="@font/sf_bold"
                     android:text="Save" />
 
                 <Button
-                    android:layout_marginLeft="3dp"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
                     android:layout_marginTop="23dp"
                     android:layout_marginBottom="120dp"
-                    android:background="@drawable/bg_rounded_button_orange"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_inverse"
                     android:fontFamily="@font/sf_bold"
                     android:text="Delete" />
 
@@ -261,24 +261,25 @@
         android:layout_height="wrap_content">
 
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/background"
-            android:fontFamily="@font/sf_bold"
-            android:gravity="center"
-            android:text="Edit Pipeline"
-            android:textColor="@color/black_pick"
-            android:textSize="16dp"
-            android:textStyle="bold" />
-
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
+            android:background="@color/background"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
             app:navigationIcon="@drawable/ic_left_arrow"
-            app:title="" />
+            app:title="">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:fontFamily="@font/sf_bold"
+                android:gravity="center|left"
+                android:text="Edit Pipeline"
+                android:textColor="@color/black_pick"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+
+        </android.support.v7.widget.Toolbar>
 
         <ProgressBar
             android:id="@+id/progress_bar"

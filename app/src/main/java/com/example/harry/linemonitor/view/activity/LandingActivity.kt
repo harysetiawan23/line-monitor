@@ -72,7 +72,7 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
         toggle.syncState()
 
         zoom_seekbar.setOnSeekBarChangeListener(this)
-        toolbar.setNavigationIcon(ctx.getDrawable(R.drawable.ic_menu_button_of_three_horizontal_lines))
+        toolbar.setNavigationIcon(ctx.getDrawable(R.drawable.ic_qr_code_scan))
 
         linePresenter = LineMapsPresenter(this)
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
