@@ -3,6 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.harry.linemonitor.view.test">
     <item
+        android:id="@+id/see_detail"
+        android:iconTint="@color/dark_gray"
+        android:icon="@drawable/ic_remove_red_eye_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="always" />
+    <item
+        android:iconTint="@color/dark_gray"
         android:id="@+id/edit_pipeline"
         android:icon="@drawable/ic_edit"
         android:orderInCategory="100"

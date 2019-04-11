@@ -169,9 +169,6 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
         }
 
-        detail_flow.onClick {
-            startActivity<LineChartDetail>("lineData" to lineMaster)
-        }
 
 
     }
@@ -187,6 +184,7 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         when (item?.itemId) {
             android.R.id.home -> finish()
             R.id.edit_pipeline -> startActivity<EditPipeLine>("lineData" to lineMaster)
+            R.id.see_detail -> startActivity<LineChartDetail>("lineData" to lineMaster)
         }
         return super.onOptionsItemSelected(item)
     }

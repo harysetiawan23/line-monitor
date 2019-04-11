@@ -24,7 +24,7 @@
         <LinearLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_marginTop="42dp"
+            android:layout_marginTop="442dp"
             android:orientation="vertical">
 
 
@@ -510,12 +510,6 @@
                             android:text="Flow ( L / m ) vs Time"
                             android:textSize="17dp" />
 
-                        <ImageView
-                            android:id="@+id/detail_flow"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:layout_marginRight="12dp"
-                            android:src="@drawable/ic_remove_red_eye_black_24dp" />
 
                     </LinearLayout>
 
