@@ -23,27 +23,44 @@
             android:textSize="18dp"
             android:textStyle="bold" />
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <RelativeLayout
+            android:id="@+id/toolbar_container"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            app:navigationIcon="@drawable/ic_left_arrow"
-            app:title="" />
+            android:layout_height="wrap_content">
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar"
-            android:indeterminate="true" />
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:background="@color/background"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:navigationIcon="@drawable/ic_left_arrow"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+            <com.miguelcatalan.materialsearchview.MaterialSearchView
+                android:id="@+id/search_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/toolbar"
+                android:indeterminate="true" />
+
+
+        </RelativeLayout>
+
+
+
 
     </RelativeLayout>
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_pipe_line_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"></ListView>
+        android:layout_marginTop="?attr/actionBarSize"></android.support.v7.widget.RecyclerView>
 </android.support.design.widget.CoordinatorLayout>

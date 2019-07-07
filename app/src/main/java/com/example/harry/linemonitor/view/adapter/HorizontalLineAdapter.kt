@@ -78,7 +78,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
 
     class viewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var lineName: TextView
-        var lineDistance: TextView
+        var lineDistance: ImageView
         var lineDiameter: TextView
         var lineThickness: TextView
         var lineManufacture: TextView
@@ -89,7 +89,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
 
         init {
             lineName = itemView.find(R.id.tv_line_name)
-            lineDistance = itemView.find(R.id.tv_line_distance)
+            lineDistance = itemView.find(R.id.iv_line_distance)
             lineDiameter = itemView.find(R.id.tv_line_diameter)
             lineManufacture = itemView.find(R.id.tv_line_manufacture)
             lineThickness = itemView.find(R.id.tv_line_thickness)
@@ -104,7 +104,6 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
         fun bind(item: LineMasterMap, listener: OnItemClickListener, context: Context) {
             lineName.text = item.name
             itemView.setOnClickListener { listener.onHorizontalItemClick(item) }
-            lineDistance.text = "${item!!.distance.toString()}"
             lineDiameter.text = "${item!!.diameter.toString()} inch"
             lineThickness.text = "${item!!.thicknes.toString()} inch"
             lineManufacture.text = "${item!!.manufacture.toString()}"
@@ -121,7 +120,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
             }
 
             val fontDrawable = TextDrawable.builder()
-                    .buildRoundRect(item!!.name!!.get(0).toString(), getRandomColor(context, currColor), 62)
+                    .buildRoundRect(item!!.distance.toString(), getRandomColor(context, 1), 62)
 
 
             val animation = AnimationUtils
@@ -130,7 +129,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
             line_pin.startAnimation(animation)
 
 
-            lineDrawable.setImageDrawable(fontDrawable)
+            lineDistance.setImageDrawable(fontDrawable)
 
 
             lineAction.onClick {

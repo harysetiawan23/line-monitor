@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".view.activity.AddNode">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:elevation="6dp">
+
+        <RelativeLayout
+            android:id="@+id/toolbar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/background"
+                app:navigationIcon="@drawable/ic_left_arrow"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+            <com.miguelcatalan.materialsearchview.MaterialSearchView
+                android:id="@+id/search_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/toolbar"
+                android:indeterminate="true" />
+
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:paddingLeft="22dp"
+            android:paddingTop="12dp"
+            android:paddingRight="22dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="top"
+                    android:src="@drawable/ic_pipe" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/sf_bold"
+                        android:text="3"
+                        android:textColor="@color/google_red" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/sf_bold"
+                        android:text="Pipeline"
+                        android:textColor="@color/border_dark"
+                        android:textSize="12dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <View
+                android:layout_width="0.6dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="22dp"
+                android:background="@color/border_color"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="top"
+                    android:src="@drawable/ic_nodes" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/sf_bold"
+                        android:text="3"
+                        android:textColor="@color/black_pick" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/sf_bold"
+                        android:text="Nodes"
+                        android:textColor="@color/border_dark"
+                        android:textSize="12dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/appBar"
+            android:background="@color/background"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="9dp"
+                android:layout_marginRight="9dp"
+                android:layout_marginBottom="9dp"
+                android:orientation="horizontal">
+
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="154dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginRight="12dp"
+                        android:fontFamily="@font/sf_bold"
+                        android:text="Scan Node" />
+
+                    <FrameLayout
+                        android:id="@+id/scan_qr_node_config"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginRight="6dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_rounded_grey"
+                        android:padding="23dp">
+
+                        <ImageView
+                            android:layout_width="68dp"
+                            android:layout_height="68dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_scan_qr" />
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="154dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginRight="12dp"
+                        android:fontFamily="@font/sf_bold"
+                        android:text="Scan Flow Rate" />
+
+                    <FrameLayout
+                        android:id="@+id/scan_qr_flow_rate"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginRight="6dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_rounded_grey"
+                        android:padding="23dp">
+
+                        <ImageView
+                            android:layout_width="68dp"
+                            android:layout_height="68dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_scan_qr" />
+                    </FrameLayout>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="154dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginRight="12dp"
+                        android:fontFamily="@font/sf_bold"
+                        android:text="Scan Pressure" />
+
+                    <FrameLayout
+                        android:id="@+id/scan_qr_pressure"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginRight="6dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_rounded_grey"
+                        android:padding="23dp">
+
+                        <ImageView
+                            android:layout_width="68dp"
+                            android:layout_height="68dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_scan_qr" />
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <!--NodeCard-->
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginRight="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingLeft="23dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/sf_bold"
+                            android:orientation="vertical"
+                            android:textFontWeight="1">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/sf_bold"
+                                android:text="Node Config" />
+
+                            <View
+                                android:layout_width="34dp"
+                                android:layout_height="1.6dp"
+                                android:layout_marginTop="3dp"
+                                android:background="@color/google_red" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/btn_manual_node_config"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginRight="23dp"
+                            android:src="@drawable/ic_edit_draw_pencil" />
+                    </LinearLayout>
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.6dp"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginRight="23dp"
+                        android:background="@color/border_color" />
+
+                    <TextView
+                        android:id="@+id/add_node_serial_number"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/cush_reguler"
+                        android:text="SN : -" />
+
+                    <TextView
+                        android:id="@+id/add_node_node_phone_number"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/cush_reguler"
+                        android:text="NUMBER : -" />
+
+                    <TextView
+                        android:id="@+id/add_node_node_lat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/cush_reguler"
+                        android:text="LAT : -" />
+
+
+                    <TextView
+                        android:id="@+id/add_node_node_lng"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/cush_reguler"
+                        android:text="LNG : -" />
+                </LinearLayout>
+
+
+            </android.support.v7.widget.CardView>
+
+
+            <!--Flow Rate Sensor -->
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginRight="12dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="23dp"
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/sf_bold"
+                            android:orientation="vertical"
+                            android:textFontWeight="1">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/sf_bold"
+                                android:text="Flow Rate Sensor" />
+
+                            <View
+                                android:layout_width="34dp"
+                                android:layout_height="1.6dp"
+                                android:layout_marginTop="3dp"
+                                android:background="@color/google_red" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/btn_manual_flow_rate_sensor"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginRight="23dp"
+                            android:src="@drawable/ic_edit_draw_pencil" />
+                    </LinearLayout>
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.6dp"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginRight="23dp"
+                        android:background="@color/border_color" />
+
+                    <TextView
+                        android:id="@+id/add_node_flow_rate_model"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/cush_reguler"
+                        android:text="MODEL : -" />
+
+                    <TextView
+                        android:id="@+id/add_node_callibration_factor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/cush_reguler"
+                        android:text="CALLIBRATION FACTOR : -" />
+
+
+                </LinearLayout>
+
+
+            </android.support.v7.widget.CardView>
+
+
+            <!--Pressure Sensor-->
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginRight="12dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="23dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/sf_bold"
+                            android:orientation="vertical"
+                            android:textFontWeight="1">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/sf_bold"
+                                android:text="Pressure Sensor" />
+
+                            <View
+                                android:layout_width="34dp"
+                                android:layout_height="1.6dp"
+                                android:layout_marginTop="3dp"
+                                android:background="@color/google_red" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/btn_manual_pressure_sensor_config"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginRight="23dp"
+                            android:src="@drawable/ic_edit_draw_pencil" />
+                    </LinearLayout>
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.6dp"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginRight="23dp"
+                        android:background="@color/border_color" />
+
+                    <TextView
+                        android:id="@+id/add_node_pressure_model"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/cush_reguler"
+                        android:text="MODEL : -" />
+
+                    <TextView
+                        android:id="@+id/add_node_pressure_offset"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/cush_reguler"
+                        android:text="OFFSET : -" />
+
+
+                </LinearLayout>
+
+
+            </android.support.v7.widget.CardView>
+
+
+            <!--IS Start Node-->
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:orientation="horizontal"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="22dp"
+                        android:layout_weight="4"
+                        android:fontFamily="@font/sf_bold"
+                        android:gravity="center_vertical"
+                        android:text="Start Node" />
+
+
+                    <ToggleButton
+                        android:id="@+id/togle_start_node"
+                        android:layout_width="98dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="13dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginRight="13dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/btn_toggle"
+                        android:textColor="@color/background"
+                        android:textOff="FALSE"
+                        android:textOn="TRUE" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+    <Button
+        android:id="@+id/submit_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/black_pick"
+        android:fontFamily="@font/sf_bold"
+        android:text="Submit" />
+</FrameLayout>

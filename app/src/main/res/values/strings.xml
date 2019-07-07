@@ -1,9 +1,8 @@
 <resources>
     <string name="app_name">LineMonitor</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_scan">Node Scan</string>
+    <string name="action_search">Search</string>
     <string name="title_activity_line_data">LineData</string>
-    <string name="title_activity_maps">Map</string>
-    <string name="title_activity_line_data_v2">LineDataV2</string>
     <string name="title_activity_landing">LineMonitor</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -14,7 +13,7 @@
     <string name="title_activity_pipe_line_list">PipeLineList</string>
     <string name="title_activity_node_list">NodeList</string>
     <string name="title_activity_register">Register</string>
+    <string name="fcm_token">FCM Token: %s</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

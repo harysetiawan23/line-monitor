@@ -134,11 +134,11 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
+                        android:orientation="horizontal"
                         android:padding="20dp">
 
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="6dp"
                             android:layout_weight="1"
@@ -148,7 +148,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Flow Rate"
+                                android:text="Flow Rate Loss"
                                 android:textColor="#d3d3d3" />
 
 
@@ -182,16 +182,6 @@
                                         android:textColor="@color/background"
                                         android:textSize="28dp" />
 
-                                    <TextView
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_gravity="center"
-                                        android:layout_marginLeft="12dp"
-                                        android:gravity="left"
-                                        android:text="Loss"
-                                        android:textColor="@color/background"
-                                        android:textSize="18dp" />
-
 
                                 </LinearLayout>
 
@@ -200,23 +190,24 @@
                         </LinearLayout>
 
                         <View
-                            android:layout_width="match_parent"
-                            android:layout_height="0.6dp"
-                            android:layout_marginTop="6dp"
-                            android:layout_marginBottom="6dp"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="6dp"
+                            android:layout_marginRight="6dp"
                             android:background="#d3d3d3" />
 
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:layout_marginLeft="6dp"
                             android:gravity="center|left"
                             android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Pressure"
+                                android:text="Pressure Loss"
                                 android:textColor="#d3d3d3" />
 
 
@@ -250,15 +241,6 @@
                                         android:textColor="@color/background"
                                         android:textSize="28dp" />
 
-                                    <TextView
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_gravity="center"
-                                        android:layout_marginLeft="12dp"
-                                        android:gravity="left"
-                                        android:text="Loss"
-                                        android:textColor="@color/background"
-                                        android:textSize="18dp" />
 
                                 </LinearLayout>
 
@@ -513,7 +495,7 @@
 
                     </LinearLayout>
 
-                    <com.github.mikephil.charting.charts.BarChart
+                    <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/flow_chart"
                         android:layout_width="match_parent"
                         android:layout_height="220dp" />
@@ -552,7 +534,7 @@
                         android:text="Pressure ( bars ) vs Time"
                         android:textSize="17dp" />
 
-                    <com.github.mikephil.charting.charts.BarChart
+                    <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/pressure_chart"
                         android:layout_width="match_parent"
                         android:layout_height="220dp" />
@@ -561,146 +543,6 @@
                 </LinearLayout>
 
             </android.support.v7.widget.CardView>
-
-
-            <!--Last Records 30 minutes-->
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="22dp"
-                android:layout_marginTop="6dp"
-                android:layout_marginRight="22dp"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="3dp"
-                app:cardElevation="6dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="6dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-
-                        <TextView
-                            android:id="@+id/tv_line_record_minute"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.8"
-                            android:paddingLeft="12dp"
-                            android:text="Time"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="#d3d3d3"
-                            android:gravity="center"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/sf_bold"
-                                android:text="S. Flow"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/sf_bold"
-                                android:text=""
-                                android:textSize="10dp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/sf_bold"
-                                android:text="E. Flow"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/sf_bold"
-                                android:text=""
-                                android:textSize="10dp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="#d3d3d3"
-                            android:gravity="center"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/sf_bold"
-                                android:text="S. Pressure"
-                                android:textSize="12dp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/sf_bold"
-                                android:text=" "
-                                android:textSize="10dp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/sf_bold"
-                                android:text="E. Pressure"
-                                android:textSize="12dp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/sf_bold"
-                                android:text=" "
-                                android:textSize="10dp" />
-                        </LinearLayout>
-
-
-                    </LinearLayout>
-
-                    <com.example.harry.linemonitor.helper.WrapContentListView
-                        android:id="@+id/rv_line_recap"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:focusableInTouchMode="true" />
-
-
-                </LinearLayout>
-
-            </android.support.v7.widget.CardView>
-
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
@@ -754,19 +596,10 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/background"
         app:navigationIcon="@drawable/ic_left_arrow"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
         app:popupTheme="@style/AppTheme.PopupOverlay"
         app:title="">
 
-        <TextView
-            android:id="@+id/tv_pipeline_name"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:fontFamily="@font/sf_bold"
-            android:gravity="center|left"
-            android:text="Pipeline Statistic"
-            android:textColor="#000"
-            android:textSize="18dp"
-            android:textStyle="bold" />
     </android.support.v7.widget.Toolbar>
 
     <ProgressBar

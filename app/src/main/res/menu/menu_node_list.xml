@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.harry.linemonitor.view.test">
+    <item
+        android:id="@+id/add_node"
+        android:icon="@drawable/ic_add_pin"
+        android:orderInCategory="100"
+        android:title="@string/action_search"
+        app:showAsAction="always" />
+</menu>

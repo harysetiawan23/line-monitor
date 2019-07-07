@@ -20,20 +20,19 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.SeekBar
+import android.widget.Toast
 import com.example.harry.linemonitor.R
-import com.example.harry.linemonitor.data.*
-import com.example.harry.linemonitor.view.adapter.LineRecordAdapter
-import com.example.harry.linemonitor.view.contract.LineHistoryContract
-import com.example.harry.linemonitor.view.contract.LineRecordHourlyContract
-import com.example.harry.linemonitor.view.presenter.LineHistoryPresenter
-import com.example.harry.linemonitor.view.presenter.LineRecordHourlyPresenter
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.example.harry.linemonitor.data.LineMaster
+import com.example.harry.linemonitor.data.LineMasterMap
+import com.example.harry.linemonitor.data.RealtimeData
+import com.example.harry.linemonitor.data.StatItem
+import com.example.harry.linemonitor.view.contract.LineMasterContract
+import com.example.harry.linemonitor.view.presenter.LineMasterPresenter
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -50,17 +49,16 @@ import org.jetbrains.anko.ctx
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.textColor
-import org.jetbrains.anko.toast
 import java.util.*
 
 
-class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventListener, LineHistoryContract, SeekBar.OnSeekBarChangeListener, GoogleMap.OnMarkerClickListener, ActivityCompat.OnRequestPermissionsResultCallback, LocationListener, LineRecordHourlyContract {
+class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventListener, SeekBar.OnSeekBarChangeListener, GoogleMap.OnMarkerClickListener, ActivityCompat.OnRequestPermissionsResultCallback, LocationListener, LineMasterContract {
 
 
 
     private lateinit var lineMaster: LineMasterMap
+    private lateinit var lineMasterNew: LineMasterMap
     private lateinit var mMap: GoogleMap
-    private lateinit var lineHistoryPresenter: LineHistoryPresenter
     private lateinit var pusher: Pusher
 
     private val PUSHER_APP_KEY = "ac63e4ba64a71a9f00a9"
@@ -73,56 +71,39 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     private lateinit var myLatLongBounds: LatLngBounds
     private lateinit var myLocation: LatLng
     private lateinit var locationManager: LocationManager
-    private lateinit var lineRecordPresenter: LineRecordHourlyPresenter
 
     private val MIN_TIME: Long = 400.toLong()
     private val MIN_DISTANCE: Float = 1000f
+
+    private val EDIT_ACTION_PERFORMED: Int = 1
+
+    private lateinit var lineMasterPresenter: LineMasterPresenter
+    private lateinit var mapFragment: SupportMapFragment
 
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pipeline_stream)
-        toolbar.title = ""
-        setSupportActionBar(toolbar)
-
-//        setTransparentStatusBar()
-
 
         lineMaster = intent.getSerializableExtra("lineData") as LineMasterMap
 
+        toolbar.title = "${lineMaster.name} - Statistic"
+        setSupportActionBar(toolbar)
+
+//        setTransparentStatusBar()
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
+        mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        tv_start_node_name.text = lineMaster.startNodeSN
 
-
-        tv_start_node_sn_.text = lineMaster.startNodeSN
-        tv_start_node_number_.text = lineMaster.startNodePhone
-
-
-        tv_end_node_name.text = lineMaster.endNodeSN
-
-
-        tv_end_node_sn_.text = lineMaster.endNodeSN
-        tv_end_node_number_.text = lineMaster.endNodePhone
-
-
-        tv_pipeline_name.text = "${lineMaster.name} - Statistic"
-
+        lineMasterPresenter = LineMasterPresenter(ctx, this)
 
         zoom_seekbar.setOnSeekBarChangeListener(this)
 
-
-        lineHistoryPresenter = LineHistoryPresenter(this)
-        lineHistoryPresenter.getLineHistory(lineMaster.id.toString())
-
-        lineRecordPresenter = LineRecordHourlyPresenter(this)
-        lineRecordPresenter.getLineHistory(lineMaster.id.toString())
 
         val options = PusherOptions()
         options.setCluster(PUSHER_APP_CLUSTER)
@@ -170,6 +151,9 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         }
 
 
+        progress_bar.visibility = View.GONE
+        lineMasterNew = LineMasterMap()
+
 
     }
 
@@ -183,20 +167,19 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> finish()
-            R.id.edit_pipeline -> startActivity<EditPipeLine>("lineData" to lineMaster)
-            R.id.see_detail -> startActivity<LineChartDetail>("lineData" to lineMaster)
+            R.id.edit_pipeline -> {
+
+                var intent = Intent(ctx, EditPipeLine::class.java)
+                intent.putExtra("lineData", lineMaster)
+                intent.putExtra("resultCode", EDIT_ACTION_PERFORMED)
+                startActivityForResult(intent, EDIT_ACTION_PERFORMED)
+            }
+            R.id.leakage_pipeline -> startActivity<LineLeakage>("lineData" to lineMaster)
         }
         return super.onOptionsItemSelected(item)
     }
 
 
-    private fun showArrange(arrange: Int): Animation {
-        val animation = AnimationUtils
-                .loadAnimation(ctx, R.anim.abc_fade_in)
-        animation.duration = arrange * 1000.toLong()
-
-        return animation
-    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -211,21 +194,21 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
         bounds = LatLngBounds.builder()
 
-        bounds.include(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
-        bounds.include(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
+        bounds.include(LatLng(lineMasterNew!!.startNodeLat!!.toDouble(), lineMasterNew!!.startNodeLng!!.toDouble()))
+        bounds.include(LatLng(lineMasterNew!!.endNodeLat!!.toDouble(), lineMasterNew!!.endNodeLng!!.toDouble()))
 
 
         var startNodeMarker = MarkerOptions()
-                .position(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
-                .title(lineMaster!!.startNodeSN)
+                .position(LatLng(lineMasterNew!!.startNodeLat!!.toDouble(), lineMasterNew!!.startNodeLng!!.toDouble()))
+                .title(lineMasterNew!!.startNodeSN)
         var endNodeMarker = MarkerOptions()
-                .position(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
-                .title(lineMaster!!.endNodeSN)
+                .position(LatLng(lineMasterNew!!.endNodeLat!!.toDouble(), lineMasterNew!!.endNodeLng!!.toDouble()))
+                .title(lineMasterNew!!.endNodeSN)
 
 
         var nodeList = ArrayList<LatLng>()
-        nodeList.add(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
-        nodeList.add(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
+        nodeList.add(LatLng(lineMasterNew!!.startNodeLat!!.toDouble(), lineMasterNew!!.startNodeLng!!.toDouble()))
+        nodeList.add(LatLng(lineMasterNew!!.endNodeLat!!.toDouble(), lineMasterNew!!.endNodeLng!!.toDouble()))
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, zoom_seekbar.progress.toFloat()))
         mMap.addPolyline(PolylineOptions().addAll(nodeList).width(12f)
@@ -261,65 +244,184 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         mMap.uiSettings.isScrollGesturesEnabled = false
     }
 
+    //Event Receiver
     override fun onEvent(channel: String?, event: String?, data: String?) {
 
         runOnUiThread {
-
             println("Received event with data: $data")
             val gson = Gson()
-            val lineRecords = gson.fromJson(data, LineRealtimeData::class.java)
-
+            val lineRecords = gson.fromJson(data, RealtimeData::class.java)
+            Log.d("DataFromEvent", lineRecords.toString())
             updateNodRecords(lineRecords)
 
         }
     }
 
-    fun updateNodRecords(data: LineRealtimeData) {
+    //Event View Updater
+    fun updateNodRecords(data: RealtimeData) {
         try {
-            data.lineRecords?.forEach { lineRecordData: LineRecordsItem? ->
-                if (lineMaster.id == lineRecordData!!.id) {
+            data.lineRecords?.stat?.forEach { statItem: StatItem? ->
+                if (lineMasterNew.id == statItem!!.id) {
 
 
-                    tv_start_node_flow.text = "%.0f".format(lineRecordData!!.lastStartNodeFlow)
-                    tv_start_node_pressure.text = "%.1f".format(lineRecordData!!.lastStartNodePressure)
+                    tv_start_node_flow.text = "%.0f".format(statItem!!.lastStartNodeFlow)
+                    tv_start_node_pressure.text = "%.0f".format(statItem!!.lastStartNodePressure)
 
 
-                    tv_end_node_flow.text = "%.0f".format(lineRecordData!!.lastEndNodeFlow)
-                    tv_end_node_pressure.text = "%.1f".format(lineRecordData!!.lastEndNodePressure)
+                    tv_end_node_flow.text = "%.0f".format(statItem!!.lastEndNodeFlow)
+                    tv_end_node_pressure.text = "%.1f".format(statItem!!.lastEndNodePressure)
 
 
 
-                    if (lineRecordData!!.flowRatio!! > 0) {
-                        tv_flow_rate_loss.text = "%.0f".format(lineRecordData!!.flowRatio!! * 100) + " %"
+                    if (statItem!!.flowRatio!! > 0) {
+                        tv_flow_rate_loss.text = "%.0f".format(statItem!!.flowRatio!! * 100) + " %"
                         tv_flow_rate_loss.textColor = ctx.resources.getColor(R.color.google_red)
                         iv_flow_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_down))
-                    } else if (lineRecordData!!.flowRatio!! < 0) {
-                        tv_flow_rate_loss.text = "%.0f".format(lineRecordData!!.flowRatio!! * 100) + " %"
+                    } else if (statItem!!.flowRatio!! < 0) {
+                        tv_flow_rate_loss.text = "%.0f".format(statItem!!.flowRatio!! * 100) + " %"
                         tv_flow_rate_loss.textColor = ctx.resources.getColor(R.color.google_green)
                         iv_flow_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_arrow_up))
                     } else {
                         iv_flow_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_updown))
-                        tv_flow_rate_loss.text = "%.0f".format(lineRecordData!!.flowRatio!! * 100) + " %"
+                        tv_flow_rate_loss.text = "%.0f".format(statItem!!.flowRatio!! * 100) + " %"
                         tv_flow_rate_loss.textColor = ctx.resources.getColor(R.color.background)
                     }
 
 
-                    if (lineRecordData!!.pressureRatio!! > 0) {
-                        tv_pressure_loss.text = "%.0f".format(lineRecordData!!.pressureRatio!! * 100) + " %"
+                    if (statItem!!.pressureRatio!! > 0) {
+                        tv_pressure_loss.text = "%.0f".format(statItem!!.pressureRatio!! * 100) + " %"
                         tv_pressure_loss.textColor = ctx.resources.getColor(R.color.google_red)
                         iv_pressure_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_down))
-                    } else if (lineRecordData!!.pressureRatio!! < 0) {
-                        tv_pressure_loss.text = "%.0f".format(lineRecordData!!.pressureRatio!! * 100) + " %"
+                    } else if (statItem!!.pressureRatio!! < 0) {
+                        tv_pressure_loss.text = "%.0f".format(statItem!!.pressureRatio!! * 100) + " %"
                         tv_pressure_loss.textColor = ctx.resources.getColor(R.color.google_green)
                         iv_pressure_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_arrow_up))
                     } else {
                         iv_pressure_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_updown))
-                        tv_pressure_loss.text = "%.0f".format(lineRecordData!!.pressureRatio!! * 100) + " %"
+                        tv_pressure_loss.text = "%.0f".format(statItem!!.pressureRatio!! * 100) + " %"
                         tv_pressure_loss.textColor = ctx.resources.getColor(R.color.background)
                     }
 
 
                 }
+            }
+
+
+            data.lineRecords?.graph?.forEachWithIndex { i, graphItem ->
+                var startNodeFlowEntry = ArrayList<Entry>()
+                var endNodeFlowEntry = ArrayList<Entry>()
+
+
+                var startNodePressureEntry = ArrayList<Entry>()
+                var endNodePressureEntry = ArrayList<Entry>()
+
+
+                var xValue = ArrayList<String>()
+
+                if (lineMasterNew.id === graphItem?.lineId) {
+
+                    if(graphItem?.lineId==7){
+                        Log.i("Data", graphItem?.data.toString())
+//                        Toast.makeText(ctx,graphItem?.data.toString(),Toast.LENGTH_SHORT).show()
+                    }
+
+
+                    graphItem!!.data!!.reversed()!!.forEachWithIndex { i, dataItem ->
+                        xValue.add("${dataItem!!.hours} : ${dataItem!!.minutes}")
+                        startNodeFlowEntry.add(Entry(dataItem?.startFlow!!.toFloat(), i))
+                        endNodeFlowEntry.add(Entry(dataItem?.endFlow!!.toFloat(), i))
+
+
+                        startNodePressureEntry.add(Entry(dataItem?.startPressure!!.toFloat(), i))
+                        endNodePressureEntry.add(Entry(dataItem?.endPressure!!.toFloat(), i))
+                    }
+
+
+                }
+                var colors = intArrayOf(R.color.google_blue, android.R.color.white)
+                var index = floatArrayOf(0f, 1f)
+
+
+                var startFlowDataSet = LineDataSet(startNodeFlowEntry, lineMaster.startNodeSN)
+                startFlowDataSet.setColor(ContextCompat.getColor(this, R.color.google_blue));
+                startFlowDataSet.setDrawCircles(false)
+                startFlowDataSet.setDrawFilled(true)
+                startFlowDataSet.fillColor = ContextCompat.getColor(this, R.color.google_blue)
+                startFlowDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+
+
+                var endFlowDataSet = LineDataSet(endNodeFlowEntry, lineMaster.endNodeSN)
+                endFlowDataSet.setColor(ContextCompat.getColor(this, R.color.google_red));
+                endFlowDataSet.setDrawCircles(false)
+                endFlowDataSet.setDrawFilled(true)
+                endFlowDataSet.fillColor = ContextCompat.getColor(this, R.color.google_red)
+                endFlowDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+
+
+                var startPressureDataSet = LineDataSet(startNodePressureEntry, lineMaster.startNodeSN)
+                startPressureDataSet.setColor(ContextCompat.getColor(this, R.color.google_blue));
+                startPressureDataSet.setDrawCircles(false)
+                startPressureDataSet.setDrawFilled(true)
+                startPressureDataSet.fillColor = ContextCompat.getColor(this, R.color.google_blue)
+                startPressureDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+
+
+                var endPressureDataSet = LineDataSet(endNodePressureEntry, lineMaster.endNodeSN)
+                endPressureDataSet.setColor(ContextCompat.getColor(this, R.color.google_red));
+                endPressureDataSet.setDrawCircles(false)
+                endPressureDataSet.setDrawFilled(true)
+                endPressureDataSet.fillColor = ContextCompat.getColor(this, R.color.google_red)
+                endPressureDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+
+
+                val flowDataSets = java.util.ArrayList<ILineDataSet>()
+                flowDataSets.add(startFlowDataSet)
+                flowDataSets.add(endFlowDataSet)
+
+                val pressureDataSets = java.util.ArrayList<ILineDataSet>()
+                pressureDataSets.add(startPressureDataSet)
+                pressureDataSets.add(endPressureDataSet)
+
+
+                val l = flow_chart.legend
+                l.setTextSize(16f)
+
+
+                val lp = pressure_chart.legend
+                lp.setTextSize(16f)
+
+                val right = flow_chart.axisRight
+                right.setDrawLabels(true)
+                right.textSize = 0f
+                right.textColor = Color.WHITE
+                right.setDrawLabels(false)
+                right.setDrawAxisLine(false)
+                right.setDrawGridLines(false)
+                right.setDrawZeroLine(false)
+
+
+                var data = LineData(xValue, flowDataSets)
+                var pressure = LineData(xValue, pressureDataSets)
+
+
+                flow_chart.setData(data);
+                flow_chart.animateX(0);
+                flow_chart.animateY(0)
+                //refresh
+                flow_chart.invalidate();
+                flow_chart.animateX(0)
+                flow_chart.animateY(0)
+
+
+                pressure_chart.setData(pressure);
+                pressure_chart.animateX(0);
+                pressure_chart.animateY(0);
+                //refresh
+                pressure_chart.invalidate();
+                pressure_chart.animateX(0);
+                pressure_chart.animateY(0);
+
+
             }
         } catch (e: Exception) {
 
@@ -333,41 +435,6 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.statusBarColor = Color.TRANSPARENT
         }
-    }
-
-    override fun onSuccess(data: List<LineHistory?>?) {
-
-        Log.d("LineHistoryData", data.toString())
-        Log.d("LineHistoryDataCount", data!!.size.toString())
-
-        var startNodeData = data.filter { lineHistory -> lineHistory!!.isStartNode!!.equals(1) }
-        var endNodeData = data.filter { lineHistory -> lineHistory!!.isStartNode!!.equals(0) }
-
-        Log.d("LineHistoryDataStart", startNodeData.size.toString())
-        Log.d("LineHistoryDataEnd", endNodeData.size.toString())
-
-        toast("Success")
-
-
-        for ((i, datum) in startNodeData!!.withIndex()) {
-            Log.d("LineHistoryData", datum.toString())
-
-        }
-
-
-    }
-
-
-    override fun onError(data: String) {
-
-    }
-
-    override fun showLoading() {
-        progress_bar.visibility = View.VISIBLE
-    }
-
-    override fun hideLoading() {
-        progress_bar.visibility = View.GONE
     }
 
 
@@ -417,92 +484,68 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
     }
 
-    //Get Line Hourly
-    override fun onRecordHourlyGeted(data: List<LineRecap?>?) {
-        rv_line_recap.adapter = LineRecordAdapter(data!!.reversed(), ctx)
 
-        var startNodeFlowEntry = ArrayList<BarEntry>()
-        var endNodeFlowEntry = ArrayList<BarEntry>()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-
-        var startNodePressureEntry = ArrayList<BarEntry>()
-        var endNodePressureEntry = ArrayList<BarEntry>()
-
-
-        var xValue = ArrayList<String>()
-
-
-        data!!.forEachWithIndex { i, lineRecap ->
-            startNodeFlowEntry.add(BarEntry(lineRecap!!.startFlow!!.toFloat(), i))
-            startNodePressureEntry.add(BarEntry(lineRecap!!.startPressure!!.toFloat(), i))
-            endNodePressureEntry.add(BarEntry(lineRecap!!.endPressure!!.toFloat(), i))
-            endNodeFlowEntry.add(BarEntry(lineRecap!!.endFlow!!.toFloat(), i))
-            xValue.add("${lineRecap!!.hours} : ${lineRecap!!.minutes}")
+        when (requestCode) {
+            EDIT_ACTION_PERFORMED -> {
+                if (resultCode == EDIT_ACTION_PERFORMED) {
+                    if (data!!.getBooleanExtra("isEditPerformed", false) == true) {
+                        finish()
+                    }
+                }
+            }
         }
-
-        var startFlowDataSet = BarDataSet(startNodeFlowEntry, lineMaster.startNodeSN)
-        startFlowDataSet.setColor(ContextCompat.getColor(this, R.color.google_blue));
-        startFlowDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+    }
 
 
-        var endFlowDataSet = BarDataSet(endNodeFlowEntry, lineMaster.endNodeSN)
-        endFlowDataSet.setColor(ContextCompat.getColor(this, R.color.google_red));
-        endFlowDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+    override fun onResume() {
+        super.onResume()
+
+        lineMasterPresenter.refreshLineMaster(lineMaster.id.toString())
+    }
 
 
-        var startPressureDataSet = BarDataSet(startNodePressureEntry, lineMaster.startNodeSN)
-        startPressureDataSet.setColor(ContextCompat.getColor(this, R.color.google_blue));
-        startPressureDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+    //Line Master View Contract
+    override fun showLoading() {
+        progress_bar.visibility = View.VISIBLE
+    }
 
+    override fun hideLoading() {
+        progress_bar.visibility = View.GONE
+    }
 
-        var endPressureDataSet = BarDataSet(endNodePressureEntry, lineMaster.endNodeSN)
-        endPressureDataSet.setColor(ContextCompat.getColor(this, R.color.google_red));
-        endPressureDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
-
-
-        val flowDataSets = java.util.ArrayList<IBarDataSet>()
-        flowDataSets.add(startFlowDataSet)
-        flowDataSets.add(endFlowDataSet)
-
-        val pressureDataSets = java.util.ArrayList<IBarDataSet>()
-        pressureDataSets.add(startPressureDataSet)
-        pressureDataSets.add(endPressureDataSet)
-
-
-        val l = flow_chart.legend
-        l.setTextSize(16f)
-
-
-        val lp = pressure_chart.legend
-        lp.setTextSize(16f)
-
-        val right = flow_chart.axisRight
-        right.setDrawLabels(true)
-        right.textSize = 0f
-        right.textColor = Color.WHITE
-        right.setDrawLabels(false)
-        right.setDrawAxisLine(false)
-        right.setDrawGridLines(false)
-        right.setDrawZeroLine(false)
-
-
-        var data = BarData(xValue, flowDataSets)
-        var pressure = BarData(xValue, pressureDataSets)
-
-
-        flow_chart.setData(data);
-        flow_chart.animateX(1000);
-        //refresh
-        flow_chart.invalidate();
-
-
-        pressure_chart.setData(pressure);
-        pressure_chart.animateX(1000);
-        //refresh
-        pressure_chart.invalidate();
-
+    override fun onRetriveDataSuccess(data: List<LineMasterMap?>?) {
 
     }
 
+    override fun onRefreshData(data: LineMasterMap?) {
+        lineMasterNew = data!!
+        tv_start_node_name.text = lineMasterNew.startNodeSN
+        tv_start_node_sn_.text = lineMasterNew.startNodeSN
+        tv_start_node_number_.text = lineMasterNew.startNodePhone
+        tv_end_node_name.text = lineMasterNew.endNodeSN
+        tv_end_node_sn_.text = lineMasterNew.endNodeSN
+        tv_end_node_number_.text = lineMasterNew.endNodePhone
+
+        mapFragment.getMapAsync(this)
+    }
+
+    override fun onUpdateSuccess(data: LineMaster?) {
+
+    }
+
+    override fun onPostSuccess(data: LineMaster?) {
+
+    }
+
+    override fun onDeleteSuccess(data: String) {
+
+    }
+
+    override fun onError(data: String) {
+
+    }
 
 }

@@ -1,6 +1,5 @@
 package com.example.harry.linemonitor.data
 
-
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
@@ -8,25 +7,25 @@ import java.io.Serializable
 data class LineMaster(
 
 	@field:SerializedName("distance")
-	val distance: Int? = null,
+	var distance: String? = null,
 
 	@field:SerializedName("start")
-	val start: String? = null,
+	var start: String? = null,
 
 	@field:SerializedName("end_node_id")
-	val endNodeId: Int? = null,
+	var endNodeId: String? = null,
 
 	@field:SerializedName("created_at")
 	val createdAt: String? = null,
 
 	@field:SerializedName("start_node_id")
-	val startNodeId: Int? = null,
+    var startNodeId: String? = null,
 
 	@field:SerializedName("manufacture")
-	val manufacture: String? = null,
+	var manufacture: String? = null,
 
 	@field:SerializedName("diameter")
-	val diameter: Int? = null,
+	var diameter: String? = null,
 
 	@field:SerializedName("updated_at")
 	val updatedAt: String? = null,
@@ -35,14 +34,14 @@ data class LineMaster(
 	val userId: Int? = null,
 
 	@field:SerializedName("name")
-	val name: String? = null,
+	var name: String? = null,
 
 	@field:SerializedName("end")
-	val end: String? = null,
+	var end: String? = null,
 
 	@field:SerializedName("id")
-	val id: Int? = null,
+    var id: Int? = null,
 
 	@field:SerializedName("thicknes")
-	val thicknes: Int? = null
+	var thicknes: String? = null
 ):Serializable

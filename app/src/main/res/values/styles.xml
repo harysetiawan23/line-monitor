@@ -4,7 +4,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/google_blue</item>
-        <item name="colorPrimaryDark">#FFFFFF</item>
+        <item name="colorPrimaryDark">@color/soft_grey</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
         <item name="colorAccent">@color/google_red</item>
         <item name="android:textViewStyle">@style/CushTextViewStyle</item>
@@ -15,6 +15,11 @@
     <!--<style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Light">-->
     <!--<item name="android:fontFamily">>sans-serif-light</item>-->
     <!--</style>-->
+
+    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColor">@color/black_pick</item>
+    </style>
 
     <style name="CushTextViewStyle" parent="android:Widget.TextView">
         <item name="android:fontFamily">sans-serif-light</item>

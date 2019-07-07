@@ -6,24 +6,24 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_line_list"
-            android:icon="@drawable/ic_pipe"
+            android:icon="@drawable/ic_links"
             android:title="Pipeline List" />
         <item
             android:id="@+id/nav_node_list"
-            android:icon="@drawable/ic_nodes"
+            android:icon="@drawable/ic_node"
             android:title="Node List" />
 
-        <item
-            android:id="@+id/nav_user"
-            android:icon="@drawable/ic_round_account_button_with_user_inside"
-            android:title="Account" />
+        <!--<item-->
+            <!--android:id="@+id/nav_user"-->
+            <!--android:icon="@drawable/ic_round_account_button_with_user_inside"-->
+            <!--android:title="Account" />-->
     </group>
 
     <item android:title="System">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:title="About" />
+                android:id="@+id/nav_logout"
+                android:title="Logout" />
         </menu>
     </item>
 

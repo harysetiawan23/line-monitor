@@ -11,7 +11,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.amulyakhare.textdrawable.TextDrawable
 import com.example.harry.linemonitor.R
-import com.example.harry.linemonitor.data.LineMaster
 import com.example.harry.linemonitor.data.NodeMaster
 import com.example.harry.linemonitor.view.activity.NodeStream
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -22,6 +21,8 @@ import java.util.*
 class NodeListAdapter(data: List<NodeMaster ?>?, context:Context) : BaseAdapter() {
     var context = context
     var nodeList = data
+
+
 
     private class ViewHolder {
 
@@ -42,7 +43,7 @@ class NodeListAdapter(data: List<NodeMaster ?>?, context:Context) : BaseAdapter(
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        //Line Data
+        //Line UserData
         var nodeMaster = nodeList!!.get(position)
 
         var convertView = convertView
@@ -58,7 +59,7 @@ class NodeListAdapter(data: List<NodeMaster ?>?, context:Context) : BaseAdapter(
             viewHolder = ViewHolder()
             val inflater = LayoutInflater.from(context)
 
-            convertView = inflater.inflate(R.layout.home_item, parent, false)
+            convertView = inflater.inflate(R.layout.select_node_item, parent, false)
 
 
             viewHolder.lineName = convertView!!.findViewById(R.id.tv_line_name) as TextView
@@ -90,15 +91,12 @@ class NodeListAdapter(data: List<NodeMaster ?>?, context:Context) : BaseAdapter(
             currColor = nextRandom
         }
         val fontDrawable = TextDrawable.builder()
-                .buildRoundRect((1+position).toString(), viewHolder.getRandomColor(context, currColor), 62)
+                .buildRoundRect((1+position).toString(), viewHolder.getRandomColor(context, nodeMaster!!.isStartNode!!), 62)
 
 
         viewHolder.lineName!!.text = nodeMaster!!.sn
         viewHolder.lineDesc!!.text = "${nodeMaster!!.phoneNumber} \n${nodeMaster!!.lat} - ${nodeMaster!!.lng}"
         viewHolder.lineImg!!.setImageDrawable(fontDrawable)
-        viewHolder.ll_line_item!!.onClick {
-            context.startActivity<NodeStream>("nodeData" to nodeMaster)
-        }
         return convertView
     }
 
@@ -120,7 +118,7 @@ class NodeListAdapter(data: List<NodeMaster ?>?, context:Context) : BaseAdapter(
 }
 
 //
-//class LineListAdapter(dataSet: List<LineMaster?>?, mContext: Context) : ArrayAdapter<LineMaster>(mContext, R.layout.home_item, dataSet), View.OnClickListener {
+//class LineListAdapter(dataSet: List<LineMaster?>?, mContext: Context) : ArrayAdapter<LineMaster>(mContext, R.layout.node_list_item, dataSet), View.OnClickListener {
 //
 //    private var lastPosition = -1
 //    var lineListData = dataSet
@@ -169,7 +167,7 @@ class NodeListAdapter(data: List<NodeMaster ?>?, context:Context) : BaseAdapter(
 //            viewHolder = ViewHolder()
 //            val inflater = LayoutInflater.from(context)
 //
-//            convertView = inflater.inflate(R.layout.home_item, parent, false)
+//            convertView = inflater.inflate(R.layout.node_list_item, parent, false)
 //
 //
 //            viewHolder.lineName = convertView!!.findViewById(R.id.tv_line_name) as TextView
