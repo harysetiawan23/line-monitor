@@ -70,7 +70,7 @@ class EditNode : AppCompatActivity(), LocationListener, OnMapReadyCallback, Node
                 .subscribe { granted ->
                     if (granted!!) {
                         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this) //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
                     } else {
 
@@ -79,7 +79,7 @@ class EditNode : AppCompatActivity(), LocationListener, OnMapReadyCallback, Node
 
         nodeMaster = intent.getSerializableExtra("nodeData") as NodeMaster
         REQUEST_CODE = intent.getIntExtra("resultCode",1)
-        nodeMasterPresenter = NodeMasterPresenter(ctx,this)
+        nodeMasterPresenter = NodeMasterPresenter(this,this)
 
         et_node_lat.setText(nodeMaster.lat.toString())
         et_node_lng.setText(nodeMaster.lng.toString())
@@ -90,11 +90,7 @@ class EditNode : AppCompatActivity(), LocationListener, OnMapReadyCallback, Node
         et_pressure_model.setText(nodeMaster.pressureTranducerModel.toString())
         et_pressure_offset.setText(nodeMaster.pressOffset.toString())
 
-        if (nodeMaster.isStartNode == 1) {
-            togle_start_node.isChecked = true
-        } else {
-            togle_start_node.isChecked = false
-        }
+        togle_start_node.isChecked = nodeMaster.isStartNode == 1
 
         progress_bar.visibility = View.GONE
 
@@ -165,7 +161,7 @@ class EditNode : AppCompatActivity(), LocationListener, OnMapReadyCallback, Node
 
             R.id.delete_node -> {
 
-                var alertDialog = AlertDialog.Builder(ctx)
+                var alertDialog = AlertDialog.Builder(this)
                 alertDialog.setTitle("Delete Node")
                 alertDialog.setMessage("Are you sure to delete this node?")
 
@@ -188,9 +184,9 @@ class EditNode : AppCompatActivity(), LocationListener, OnMapReadyCallback, Node
                 var dialogData:AlertDialog =  alertDialog.create()
 
                 dialogData.show()
-                dialogData.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ctx.getColor(R.color.google_blue))
+                dialogData.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(this.getColor(R.color.google_blue))
                 dialogData.getButton(AlertDialog.BUTTON_NEGATIVE)
-                dialogData.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ctx.getColor(R.color.google_blue))
+                dialogData.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(this.getColor(R.color.google_blue))
 
                 dialogData.show()
             }
@@ -250,7 +246,7 @@ class EditNode : AppCompatActivity(), LocationListener, OnMapReadyCallback, Node
     }
 
     override fun onError(data: String) {
-        var alertDialog = AlertDialog.Builder(ctx)
+        var alertDialog = AlertDialog.Builder(this)
         alertDialog.setTitle("Error")
         alertDialog.setMessage(data)
 

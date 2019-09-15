@@ -32,8 +32,8 @@ class PipeLineList : AppCompatActivity(), LineMasterContract, PipelineListAdapte
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
-        linePresenter = LineMasterPresenter(ctx,this)
-        rv_pipe_line_list.layoutManager = LinearLayoutManager(ctx,LinearLayout.VERTICAL,false)
+        linePresenter = LineMasterPresenter(this,this)
+        rv_pipe_line_list.layoutManager = LinearLayoutManager(this,LinearLayout.VERTICAL,false)
 
     }
 
@@ -56,7 +56,7 @@ class PipeLineList : AppCompatActivity(), LineMasterContract, PipelineListAdapte
     }
 
     override fun onRetriveDataSuccess(data: List<LineMasterMap?>?) {
-        rv_pipe_line_list.adapter = PipelineListAdapter(ctx,data,thisActivity)
+        rv_pipe_line_list.adapter = PipelineListAdapter(this,data,thisActivity)
     }
 
     override fun onPostSuccess(data: LineMaster?) {

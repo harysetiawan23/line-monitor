@@ -28,7 +28,7 @@ class Register : AppCompatActivity(), UserRegisterContact, View.OnClickListener 
 
         signup_button.setOnClickListener(this)
 
-        registerPresenter = UserRegister(ctx,this)
+        registerPresenter = UserRegister(this,this)
         login_button.setOnClickListener(this)
     }
 
@@ -63,15 +63,15 @@ class Register : AppCompatActivity(), UserRegisterContact, View.OnClickListener 
     }
 
     override fun onRegisterSuccess(data: RegisterResponse?) {
-        Toast.makeText(ctx, "SUCCESS", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "SUCCESS", Toast.LENGTH_SHORT).show()
         Log.d("REGISTRATIONDATA",data.toString())
 
-        PreferencesUtility.saveUsetDataFromRegister(ctx,data!!)
+        PreferencesUtility.saveUsetDataFromRegister(this,data!!)
         startActivity<LandingActivity>()
         finish()
     }
 
-    override fun onError(data: String?) { Toast.makeText(ctx, "ERROR + $data", Toast.LENGTH_SHORT).show()
+    override fun onError(data: String?) { Toast.makeText(this, "ERROR + $data", Toast.LENGTH_SHORT).show()
         Log.d("TEST_ERROR",data.toString())
     }
 

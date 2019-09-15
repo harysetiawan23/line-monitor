@@ -2,6 +2,7 @@ package com.example.harry.submission_2kade.api
 
 
 import com.example.harry.linemonitor.data.*
+import com.google.gson.annotations.SerializedName
 import io.reactivex.Observable
 import retrofit2.http.*
 
@@ -11,11 +12,11 @@ interface ApiService {
     //    USER END POINT
 //    - LOGIN
     @FormUrlEncoded
-    @POST("login")
+    @POST("user/login")
     fun login(
             @Field("email") email: String,
             @Field("password") password: String,
-            @Field("fcm_token") fcm_token: String
+            @Field("fcm") fcm_token: String
     ): Observable<LoginResponse>
 
 
@@ -40,14 +41,14 @@ interface ApiService {
 //    - STORE NODE
 //    - UPDATE NODE
 //    - DELETE NODE
-    @GET("node-master/")
+    @GET("node/")
     fun getNodeList(): Observable<List<NodeMaster>>
 
-    @GET("node-master/{id}")
+    @GET("node/{id}")
     fun getNodeById(@Path("id") id: String): Observable<NodeMaster>
 
     @FormUrlEncoded
-    @POST("node-master/store")
+    @POST("node")
     fun storeNodeMaster(
             @Field("sn") nodeSN: String,
             @Field("phone_number") phone_number: String,
@@ -62,7 +63,7 @@ interface ApiService {
 
 
     @FormUrlEncoded
-    @POST("node-master/update/{node_id}")
+    @POST("node/{node_id}")
     fun updateNodeMester(
             @Path("node_id") id: String,
             @Field("sn") nodeSN: String,
@@ -77,7 +78,7 @@ interface ApiService {
     ): Observable<NodeMaster>
 
 
-    @POST("node-master/destroy/{node_id}")
+    @POST("node/drop/{node_id}")
     fun deleteNodeMaster(@Path("node_id") id: String): Observable<ResponseDeleteSuccess>
 
 
@@ -88,15 +89,15 @@ interface ApiService {
 //    - STORE LINE
 //    - DELETE LINE
 
-    @GET("line-master/lines")
+    @GET("line")
     fun getLineMasterLinesMaps(): Observable<List<LineMasterMap>>
 
-    @GET("line-master/{id}")
-    fun getLineMasterLineMpasById(@Path("id") id: String): Observable<List<LineMasterMap>>
+    @GET("line/{id}")
+    fun getLineMasterLineMpasById(@Path("id") id: String): Observable<LineMasterMap>
 
 
     @FormUrlEncoded
-    @POST("line-master/store")
+    @POST("line")
     fun storeLineMaster(
             @Field("name") name: String,
             @Field("start") start: String,
@@ -106,12 +107,15 @@ interface ApiService {
             @Field("distance") distance: String,
             @Field("diameter") diameter: String,
             @Field("thicknes") thicknes: String,
-            @Field("manufacture") manufacture: String
+            @Field("manufacture") manufacture: String,
+            @Field("flow_leakage_treshold") flow_leakage_treshold: String,
+            @Field("pressure_check_duration") pressure_check_duration: String,
+            @Field("pressure_leakage") pressure_leakage: String
     ): Observable<LineMaster>
 
 
     @FormUrlEncoded
-    @POST("line-master/update/{id}")
+    @POST("line/{id}")
     fun updateLineMaster(
             @Path("id") id: String,
             @Field("name") name: String,
@@ -122,16 +126,23 @@ interface ApiService {
             @Field("distance") distance: String,
             @Field("diameter") diameter: String,
             @Field("thicknes") thicknes: String,
-            @Field("manufacture") manufacture: String
+            @Field("manufacture") manufacture: String,
+            @Field("flow_leakage_treshold") flow_leakage_treshold: String,
+            @Field("pressure_check_duration") pressure_check_duration: String,
+            @Field("pressure_leakage") pressure_leakage: String
     ): Observable<LineMaster>
 
 
-    @POST("line-master/destroy/{line_id}")
+    @POST("line/drop/{line_id}")
     fun deleteLineMaster(@Path("line_id") id: String): Observable<ResponseDeleteSuccess>
 
 
     //    LEAKAGE ENDPOINT
 //    - LEAKAGE LIST BY LINE
     @GET("leakage/{lineId}")
-    fun getLeakage(@Path("lineId") id: String): Observable<List<LeakageMaster>>
+    fun getLeakage(@Path("lineId") id: String): Observable<List<LineLeakageResponse>>
+
+    @GET("leakage/solve/{leakageId}")
+    fun solveLeakage(@Path("leakageId") id: String): Observable<SolvedSuccessMessage>
+
 }

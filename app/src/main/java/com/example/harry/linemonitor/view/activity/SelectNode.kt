@@ -4,10 +4,12 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.example.harry.linemonitor.R
+import com.example.harry.linemonitor.data.LineMasterMap
 import com.example.harry.linemonitor.data.NodeMaster
 import com.example.harry.linemonitor.data.ResponseDeleteSuccess
 import com.example.harry.linemonitor.view.adapter.NodeListAdapter
@@ -21,15 +23,18 @@ class SelectNode : AppCompatActivity(), NodeMasterContract {
 
     private lateinit var nodePresenter: NodeMasterPresenter
 
+    private var isStartRequired:Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_select_node)
 
 
         toolbar.title = "Select Node"
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        nodePresenter = NodeMasterPresenter(ctx,this)
-
+        nodePresenter = NodeMasterPresenter(this,this)
+        isStartRequired = intent.getSerializableExtra("isStartNodeRequired") as Int
+        Log.i("IsStartNode",isStartRequired.toString())
     }
 
     override fun onStart() {
@@ -41,6 +46,7 @@ class SelectNode : AppCompatActivity(), NodeMasterContract {
         menuInflater.inflate(R.menu.menu_node_list, menu)
         return super.onCreateOptionsMenu(menu)
     }
+
 
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -60,10 +66,10 @@ class SelectNode : AppCompatActivity(), NodeMasterContract {
     }
 
     override fun onRetriveNodeListSuccess(data: List<NodeMaster?>?) {
-        rv_node_list.adapter = NodeListAdapter(data, ctx)
+        rv_node_list.adapter = NodeListAdapter(data!!.filter { nodeMaster -> nodeMaster!!.isStartNode!!.equals(isStartRequired) }, this)
         rv_node_list.setOnItemClickListener { parent, view, position, id ->
             var intent = Intent()
-            intent.putExtra("nodeResult", data!!.get(position!!))
+            intent.putExtra("nodeResult", data!!.get(position))
             setResult(Activity.RESULT_OK, intent)
             finish()
         }

@@ -9,20 +9,20 @@ import android.widget.ListView
 
 object Helper {
     fun getListViewSize(myListView: ListView) {
-        val listAdapter = myListView.getAdapter()
+        val listAdapter = myListView.adapter
                 ?: // pre-condition
                 return
 
         var totalHeight = 0
-        for (i in 0 until listAdapter.getCount()) {
+        for (i in 0 until listAdapter.count) {
             val listItem = listAdapter.getView(i, null, myListView)
             listItem.measure(0, 0)
-            totalHeight += listItem.getMeasuredHeight()
+            totalHeight += listItem.measuredHeight
         }
 
-        val params = myListView.getLayoutParams()
-        params.height = totalHeight + myListView.getDividerHeight() * (listAdapter.getCount() - 1)
-        myListView.setLayoutParams(params)
+        val params = myListView.layoutParams
+        params.height = totalHeight + myListView.dividerHeight * (listAdapter.count - 1)
+        myListView.layoutParams = params
         myListView.requestLayout()
     }
 }

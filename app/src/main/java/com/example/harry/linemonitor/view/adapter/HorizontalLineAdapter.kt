@@ -56,7 +56,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
                     var filteredList: ArrayList<LineMasterMap?>? = ArrayList()
                     context.toast(charString.toLowerCase())
                     for (row in lineList!!) {
-                        if (row!!.name!!.toLowerCase().contains(charString.toLowerCase()) || row!!.startNodeSN!!.toLowerCase().contains(charString.toLowerCase()) || row!!.endNodeSN!!.toLowerCase().contains(charString.toLowerCase())) {
+                        if (row!!.name!!.toLowerCase().contains(charString.toLowerCase()) || row.startNodeSN!!.toLowerCase().contains(charString.toLowerCase()) || row.endNodeSN!!.toLowerCase().contains(charString.toLowerCase())) {
                             filteredList!!.add(row)
                         }
                     }
@@ -104,10 +104,10 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
         fun bind(item: LineMasterMap, listener: OnItemClickListener, context: Context) {
             lineName.text = item.name
             itemView.setOnClickListener { listener.onHorizontalItemClick(item) }
-            lineDiameter.text = "${item!!.diameter.toString()} inch"
-            lineThickness.text = "${item!!.thicknes.toString()} inch"
-            lineManufacture.text = "${item!!.manufacture.toString()}"
-            lineDesc.text = "${item!!.start} - ${item!!.end}"
+            lineDiameter.text = "${item.diameter.toString()} inch"
+            lineThickness.text = "${item.thicknes.toString()} inch"
+            lineManufacture.text = "${item.manufacture.toString()}"
+            lineDesc.text = "${item.start} - ${item.end}"
 
 
             val rand = Random()
@@ -120,7 +120,7 @@ class HorizontalLineAdapter(data: List<LineMasterMap?>?, private val listener: O
             }
 
             val fontDrawable = TextDrawable.builder()
-                    .buildRoundRect(item!!.distance.toString(), getRandomColor(context, 1), 62)
+                    .buildRoundRect(item.distance.toString(), getRandomColor(context, 1), 62)
 
 
             val animation = AnimationUtils

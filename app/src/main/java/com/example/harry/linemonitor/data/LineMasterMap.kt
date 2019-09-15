@@ -8,65 +8,77 @@ import java.io.Serializable
 data class LineMasterMap(
 
 	@field:SerializedName("distance")
-	val distance: Int? = null,
+	var distance: Int? = null,
 
 	@field:SerializedName("startNodeLng")
-	val startNodeLng: String? = null,
+	var startNodeLng: String? = null,
+
+	@field:SerializedName("flow_leakage_treshold")
+	var flowLeakageTreshold: Double? = null,
 
 	@field:SerializedName("startNodePhone")
-	val startNodePhone: String? = null,
-
-	@field:SerializedName("start")
-	val start: String? = null,
+	var startNodePhone: String? = null,
 
 	@field:SerializedName("end_node_id")
-	val endNodeId: Int? = null,
+	var endNodeId: Int? = null,
 
 	@field:SerializedName("created_at")
-	val createdAt: String? = null,
+	var createdAt: String? = null,
 
 	@field:SerializedName("start_node_id")
-	val startNodeId: Int? = null,
-
-	@field:SerializedName("startNodeSN")
-	val startNodeSN: String? = null,
-
-	@field:SerializedName("manufacture")
-	val manufacture: String? = null,
+	var startNodeId: Int? = null,
 
 	@field:SerializedName("diameter")
-	val diameter: Int? = null,
+	var diameter: Int? = null,
 
 	@field:SerializedName("updated_at")
-	val updatedAt: String? = null,
-
-	@field:SerializedName("user_id")
-	val userId: Int? = null,
-
-	@field:SerializedName("endNodeLat")
-	val endNodeLat: String? = null,
-
-	@field:SerializedName("name")
-	val name: String? = null,
+	var updatedAt: String? = null,
 
 	@field:SerializedName("endNodePhone")
-	val endNodePhone: String? = null,
+	var endNodePhone: String? = null,
 
 	@field:SerializedName("end")
-	val end: String? = null,
+	var end: String? = null,
 
 	@field:SerializedName("id")
-	val id: Int? = null,
+	var id: Int? = null,
+
+	@field:SerializedName("pressure_check_duration")
+	var pressureCheckDuration: Int? = null,
+
+	@field:SerializedName("start")
+	var start: String? = null,
+
+	@field:SerializedName("startNodeSN")
+	var startNodeSN: String? = null,
+
+	@field:SerializedName("manufacture")
+	var manufacture: String? = null,
+
+	@field:SerializedName("user_id")
+	var userId: Int? = null,
+
+	@field:SerializedName("endNodeLat")
+	var endNodeLat: String? = null,
+
+	@field:SerializedName("name")
+	var name: String? = null,
+
+	@field:SerializedName("column_16")
+	var column16: Any? = null,
 
 	@field:SerializedName("thicknes")
-	val thicknes: Int? = null,
+	var thicknes: Int? = null,
+
+	@field:SerializedName("pressure_leakage")
+	var pressureLeakage: Double? = null,
 
 	@field:SerializedName("EndNodeSN")
-	val endNodeSN: String? = null,
+	var endNodeSN: String? = null,
 
 	@field:SerializedName("startNodeLat")
-	val startNodeLat: String? = null,
+	var startNodeLat: String? = null,
 
 	@field:SerializedName("endNodeLng")
-	val endNodeLng: String? = null
+	var endNodeLng: String? = null
 ):Serializable

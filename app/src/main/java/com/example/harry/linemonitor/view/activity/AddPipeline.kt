@@ -30,6 +30,19 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_add_pipeline.*
+import kotlinx.android.synthetic.main.activity_add_pipeline.progress_bar
+import kotlinx.android.synthetic.main.activity_add_pipeline.submit_button
+import kotlinx.android.synthetic.main.activity_add_pipeline.toolbar
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_end_node
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_end_node_lat
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_end_node_lng
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_end_node_phone
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_end_node_sn
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_start_node
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_start_node_lat
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_start_node_lng
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_start_node_phone
+import kotlinx.android.synthetic.main.activity_add_pipeline.tv_start_node_sn
 import org.jetbrains.anko.ctx
 
 class AddPipeline : AppCompatActivity(), View.OnClickListener, OnMapReadyCallback, LocationListener, LineMasterContract {
@@ -73,7 +86,7 @@ class AddPipeline : AppCompatActivity(), View.OnClickListener, OnMapReadyCallbac
                 .subscribe { granted ->
                     if (granted!!) {
                         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this) //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
                     } else {
 
@@ -87,6 +100,7 @@ class AddPipeline : AppCompatActivity(), View.OnClickListener, OnMapReadyCallbac
         tv_start_node.setOnClickListener(this)
         tv_end_node.setOnClickListener(this)
         toolbar.title = "Add Pipeline"
+        setSupportActionBar(toolbar)
 
 
         progress_bar.visibility = View.GONE
@@ -96,7 +110,7 @@ class AddPipeline : AppCompatActivity(), View.OnClickListener, OnMapReadyCallbac
 
         lineMaster = LineMaster()
 
-        lineMasterPresenter = LineMasterPresenter(ctx,this)
+        lineMasterPresenter = LineMasterPresenter(this,this)
 
     }
 
@@ -138,14 +152,16 @@ class AddPipeline : AppCompatActivity(), View.OnClickListener, OnMapReadyCallbac
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.tv_start_node -> {
-                var intent = Intent(ctx, SelectNode::class.java)
+                var intent = Intent(this, SelectNode::class.java)
                 intent.putExtra("isSelectMode", true)
+                intent.putExtra("isStartNodeRequired",1)
                 startActivityForResult(intent, REQURST_START_NODE_DATA)
             }
 
             R.id.tv_end_node -> {
-                var intent = Intent(ctx, SelectNode::class.java)
+                var intent = Intent(this, SelectNode::class.java)
                 intent.putExtra("isSelectMode", true)
+                intent.putExtra("isStartNodeRequired",0)
                 startActivityForResult(intent, REQURST_END_NODE_DATA)
             }
 
@@ -157,7 +173,9 @@ class AddPipeline : AppCompatActivity(), View.OnClickListener, OnMapReadyCallbac
                 lineMaster.distance = et_line_distance.text.toString()
                 lineMaster.thicknes = et_line_thickness.text.toString()
                 lineMaster.manufacture = et_line_manufacture.text.toString()
-
+                lineMaster.flowLeakageTreshold = (et_flow_rate_ratio.text.toString().toDouble()/100).toString()
+                lineMaster.pressureCheckDuration = et_pressure_leak_duration.text.toString()
+                lineMaster.pressureLeakage = (et_pressure_leak_ratio.text.toString().toDouble()/100).toString()
                 lineMasterPresenter.postLineMaster(lineMaster)
 
             }

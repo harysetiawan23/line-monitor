@@ -57,7 +57,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
 
         progress_bar.visibility = View.GONE
 
-        nodePresenter = NodeMasterPresenter(ctx,this)
+        nodePresenter = NodeMasterPresenter(this,this)
 
         btn_manual_flow_rate_sensor.setOnClickListener(this)
         btn_manual_node_config.setOnClickListener(this)
@@ -82,7 +82,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
                 .subscribe { granted ->
                     if (granted!!) {
                         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this) //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
                     } else {
 
@@ -108,8 +108,8 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
 
 
 //                Component Definition
-                var dialogBuilder = AlertDialog.Builder(ctx)
-                var dialogLayout = LayoutInflater.from(ctx).inflate(R.layout.add_node_config_dialog, null)
+                var dialogBuilder = AlertDialog.Builder(this)
+                var dialogLayout = LayoutInflater.from(this).inflate(R.layout.add_node_config_dialog, null)
                 var firstLabel = dialogLayout.find<TextView>(R.id.first_label)
                 var secondLabel = dialogLayout.find<TextView>(R.id.second_label)
                 var firstEditext = dialogLayout.find<TextView>(R.id.first_editext)
@@ -134,7 +134,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
 
                     try {
                         if (firstEditext.text.isEmpty() || secondEditext.text.isEmpty()) {
-                            var alertDialog = AlertDialog.Builder(ctx)
+                            var alertDialog = AlertDialog.Builder(this)
                             alertDialog.setTitle("Field(s) must not empty")
                             alertDialog.setNegativeButton("Dismiss", DialogInterface.OnClickListener { dialog, which ->
                                 dialog.dismiss()
@@ -168,8 +168,8 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
             R.id.btn_manual_flow_rate_sensor -> {
 
 //                Component Definition
-                var dialogBuilder = AlertDialog.Builder(ctx)
-                var dialogLayout = LayoutInflater.from(ctx).inflate(R.layout.add_node_config_dialog, null)
+                var dialogBuilder = AlertDialog.Builder(this)
+                var dialogLayout = LayoutInflater.from(this).inflate(R.layout.add_node_config_dialog, null)
                 var firstLabel = dialogLayout.find<TextView>(R.id.first_label)
                 var secondLabel = dialogLayout.find<TextView>(R.id.second_label)
                 var firstEditext = dialogLayout.find<TextView>(R.id.first_editext)
@@ -193,7 +193,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
                 submitButton.setOnClickListener { v: View? ->
                     try {
                         if (firstEditext.text.isEmpty() || secondEditext.text.isEmpty()) {
-                            var alertDialog = AlertDialog.Builder(ctx)
+                            var alertDialog = AlertDialog.Builder(this)
                             alertDialog.setTitle("Field(s) must not empty")
                             alertDialog.setNegativeButton("Dismiss", DialogInterface.OnClickListener { dialog, which ->
                                 dialog.dismiss()
@@ -225,8 +225,8 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
             R.id.btn_manual_pressure_sensor_config -> {
 
 //                Component Definition
-                var dialogBuilder = AlertDialog.Builder(ctx)
-                var dialogLayout = LayoutInflater.from(ctx).inflate(R.layout.add_node_config_dialog, null)
+                var dialogBuilder = AlertDialog.Builder(this)
+                var dialogLayout = LayoutInflater.from(this).inflate(R.layout.add_node_config_dialog, null)
                 var firstLabel = dialogLayout.find<TextView>(R.id.first_label)
                 var secondLabel = dialogLayout.find<TextView>(R.id.second_label)
                 var firstEditext = dialogLayout.find<TextView>(R.id.first_editext)
@@ -251,7 +251,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
 
                     try {
                         if (firstEditext.text.isEmpty() || secondEditext.text.isEmpty()) {
-                            var alertDialog = AlertDialog.Builder(ctx)
+                            var alertDialog = AlertDialog.Builder(this)
                             alertDialog.setTitle("Field(s) must not empty")
                             alertDialog.setNegativeButton("Dismiss", DialogInterface.OnClickListener { dialog, which ->
                                 dialog.dismiss()
@@ -284,21 +284,21 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
 
             R.id.scan_qr_node_config -> {
 
-                var intent = Intent(ctx, Scanner::class.java)
+                var intent = Intent(this, Scanner::class.java)
                 intent.putExtra("requestCode", NODE_CONFIG_REQUEST.toString())
                 startActivityForResult(intent, NODE_CONFIG_REQUEST)
             }
 
             R.id.scan_qr_flow_rate -> {
 
-                var intent = Intent(ctx, Scanner::class.java)
+                var intent = Intent(this, Scanner::class.java)
                 intent.putExtra("requestCode", FLOW_CONFIG_REQUEST.toString())
                 startActivityForResult(intent, FLOW_CONFIG_REQUEST)
             }
 
             R.id.scan_qr_pressure -> {
 
-                var intent = Intent(ctx, Scanner::class.java)
+                var intent = Intent(this, Scanner::class.java)
                 intent.putExtra("requestCode", PRESSURE_CONFIG_REQUEST.toString())
                 startActivityForResult(intent, PRESSURE_CONFIG_REQUEST)
             }
@@ -315,7 +315,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
                     if (!nodeMaster.sn.isNullOrEmpty() || !nodeMaster.phoneNumber.isNullOrEmpty() || nodeMaster.liquidFlowKonstanta!!.toFloat() <= 0 || nodeMaster.pressOffset!!.toFloat() <= 0) {
                         nodePresenter.storeNode(nodeMaster)
                     }else{
-                        var alertDialog = AlertDialog.Builder(ctx)
+                        var alertDialog = AlertDialog.Builder(this)
                         alertDialog.setTitle("Attention")
                         alertDialog.setMessage("Please scan Node's, Water Flow's and Pressure Tranducer's  QR to fill all the information")
                         alertDialog.setNegativeButton("Dismiss", DialogInterface.OnClickListener { dialog, which ->
@@ -345,7 +345,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
         when (resultCode) {
             NODE_CONFIG_REQUEST -> {
                 var value = data!!.getStringExtra("SCAN_RESULT")
-                var valueList: List<String> = data!!.getStringExtra("SCAN_RESULT").split("/")
+                var valueList: List<String> = data.getStringExtra("SCAN_RESULT").split("/")
                 Log.d("SCANRESULT", "DATA RECEIVED : ${value}")
 
                 nodeMaster.sn = valueList[0]
@@ -362,7 +362,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
 
             FLOW_CONFIG_REQUEST -> {
                 var value = data!!.getStringExtra("SCAN_RESULT")
-                var valueList: List<String> = data!!.getStringExtra("SCAN_RESULT").split("/")
+                var valueList: List<String> = data.getStringExtra("SCAN_RESULT").split("/")
                 Log.d("SCANRESULT", "DATA RECEIVED : ${value}")
 
 
@@ -378,7 +378,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
 
             PRESSURE_CONFIG_REQUEST -> {
                 var value = data!!.getStringExtra("SCAN_RESULT")
-                var valueList: List<String> = data!!.getStringExtra("SCAN_RESULT").split("/")
+                var valueList: List<String> = data.getStringExtra("SCAN_RESULT").split("/")
                 Log.d("SCANRESULT", "DATA RECEIVED : ${value}")
 
 
@@ -423,7 +423,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
 
     override fun onError(data: String) {
         Log.e("NodeStoreError", data.toString())
-        var alertDialog = AlertDialog.Builder(ctx)
+        var alertDialog = AlertDialog.Builder(this)
         alertDialog.setTitle("Error Post UserData")
         alertDialog.setMessage(data)
         alertDialog.setNegativeButton("Dismiss", DialogInterface.OnClickListener { dialog, which ->
@@ -438,7 +438,7 @@ class AddNode : AppCompatActivity(), View.OnClickListener, NodeMasterContract, L
     override fun onLocationChanged(location: Location?) {
 
         nodeMaster.lat = location!!.latitude.toString()
-        nodeMaster.lng = location!!.longitude.toString()
+        nodeMaster.lng = location.longitude.toString()
 
         locationManager.removeUpdates(this)
 

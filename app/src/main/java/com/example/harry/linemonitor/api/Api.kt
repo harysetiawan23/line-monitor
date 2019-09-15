@@ -23,7 +23,7 @@ class Api {
         val interceptor =  Interceptor { chain ->
             val request = chain.request()?.newBuilder()
                     ?.addHeader("Accept", "application/json")
-                    ?.addHeader("Authorization","${prefrences.type} ${prefrences.token}")
+                    ?.addHeader("Authorization","bearer ${prefrences.token}")
                     ?.build()
             chain.proceed(request)
         }
@@ -37,7 +37,7 @@ class Api {
 
         return Retrofit.Builder()
                 .client(okhttp)
-                .baseUrl("http://13.67.71.80/api/")
+                .baseUrl("http://23.101.26.206/api/")
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create()).build()
 

@@ -28,7 +28,7 @@ class NodeAdapter(context: Context, nodeData: List<NodeMaster?>?, private val li
         if (nodeData!!.size == 0) {
             return 0
         } else {
-            return nodeData!!.size
+            return nodeData.size
         }
     }
 

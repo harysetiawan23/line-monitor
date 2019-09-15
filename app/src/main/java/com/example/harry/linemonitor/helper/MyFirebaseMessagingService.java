@@ -12,8 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.example.harry.linemonitor.R;
 import com.example.harry.linemonitor.view.activity.LandingActivity;
@@ -43,7 +41,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             setupChannels();
         }
         int notificationId = new Random().nextInt(60000);
-        Uri sound = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notif);
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         Intent intent = new Intent(this, LandingActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -51,19 +49,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "ALL")
-                .setSmallIcon(R.mipmap.ic_launcher)  //a resource for your custom small icon
-                .setContentTitle("Line Monitor Notif Test") //the "title" value you sent in your notification
-                .setVisibility(Notification.VISIBILITY_PUBLIC)
-//                .setContentIntent(pendingIntent)
-                .setContentText(remoteMessage.getNotification().getBody()) //ditto
-//                .setSound(sound)
                 .setDefaults(Notification.DEFAULT_SOUND)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSmallIcon(R.drawable.ic_leak)  //a resource for your custom small icon
+                .setContentTitle(remoteMessage.getNotification().getTitle()) //the "title" value you sent in your notification
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setContentIntent(pendingIntent)
+                .setContentText(remoteMessage.getNotification().getBody()) //ditto
+                .setSound(defaultSoundUri);
+
 
 
         notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
 
-        Toast.makeText(this,remoteMessage.getNotification().getBody(),Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,remoteMessage.getNotification().getBody(),Toast.LENGTH_SHORT).show();
 //        generateNotification(remoteMessage.getNotification().getBody());
 
 
@@ -86,25 +85,4 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
 
-    private void generateNotification(String body) {
-        Intent intent = new Intent(this, LandingActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent, PendingIntent.FLAG_ONE_SHOT);
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_edit)
-                .setContentText("Firebase Notification")
-                .setContentText(body)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (NOTIFICATION_ID > 1073741824){
-            NOTIFICATION_ID = 0;
-        }
-
-        notificationManager.notify(NOTIFICATION_ID++, mNotificationBuilder.build());
-
-    }
 }

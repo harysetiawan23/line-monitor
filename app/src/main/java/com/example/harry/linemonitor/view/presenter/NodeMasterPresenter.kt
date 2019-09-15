@@ -39,14 +39,14 @@ class NodeMasterPresenter(context: Context, model: NodeMasterContract) {
 
         Api().getInstance(context).storeNodeMaster(
                 nodeMaster!!.sn!!,
-                nodeMaster!!.phoneNumber!!,
-                nodeMaster!!.lat!!,
-                nodeMaster!!.lng!!,
-                nodeMaster!!.isStartNode!!.toString(),
-                nodeMaster!!.pressOffset!!.toString(),
-                nodeMaster!!.liquidFlowKonstanta!!.toString(),
-                nodeMaster!!.flowRateModel!!.toString(),
-                nodeMaster!!.pressureTranducerModel!!.toString()
+                nodeMaster.phoneNumber!!,
+                nodeMaster.lat!!,
+                nodeMaster.lng!!,
+                nodeMaster.isStartNode!!.toString(),
+                nodeMaster.pressOffset!!.toString(),
+                nodeMaster.liquidFlowKonstanta!!.toString(),
+                nodeMaster.flowRateModel!!.toString(),
+                nodeMaster.pressureTranducerModel!!.toString()
 
 
         ).observeOn(AndroidSchedulers.mainThread())
@@ -76,15 +76,15 @@ class NodeMasterPresenter(context: Context, model: NodeMasterContract) {
 
         Api().getInstance(context).updateNodeMester(
                 nodeMaster!!.id!!.toString(),
-                nodeMaster!!.sn!!,
-                nodeMaster!!.phoneNumber!!,
-                nodeMaster!!.lat!!,
-                nodeMaster!!.lng!!,
-                nodeMaster!!.isStartNode!!.toString(),
-                nodeMaster!!.pressOffset!!.toString(),
-                nodeMaster!!.liquidFlowKonstanta!!.toString(),
-                nodeMaster!!.flowRateModel!!.toString(),
-                nodeMaster!!.pressureTranducerModel!!.toString()
+                nodeMaster.sn!!,
+                nodeMaster.phoneNumber!!,
+                nodeMaster.lat!!,
+                nodeMaster.lng!!,
+                nodeMaster.isStartNode!!.toString(),
+                nodeMaster.pressOffset!!.toString(),
+                nodeMaster.liquidFlowKonstanta!!.toString(),
+                nodeMaster.flowRateModel!!.toString(),
+                nodeMaster.pressureTranducerModel!!.toString()
 
         ).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.newThread())

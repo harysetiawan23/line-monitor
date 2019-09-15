@@ -1,7 +1,7 @@
 package com.example.harry.linemonitor.view.activity
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
@@ -33,10 +33,10 @@ class NodeList : AppCompatActivity(),NodeMasterContract, NodeAdapter.OnItemClick
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         toolbar.title = "Node List"
-        nodePresenter = NodeMasterPresenter(ctx,this)
+        nodePresenter = NodeMasterPresenter(this,this)
 
 
-        rv_node_list.layoutManager = LinearLayoutManager(ctx,LinearLayout.VERTICAL,false)
+        rv_node_list.layoutManager = LinearLayoutManager(this,LinearLayout.VERTICAL,false)
     }
 
 
@@ -71,7 +71,7 @@ class NodeList : AppCompatActivity(),NodeMasterContract, NodeAdapter.OnItemClick
 
     override fun onRetriveNodeListSuccess(data: List<NodeMaster?>?) {
 
-        rv_node_list.adapter = NodeAdapter(ctx,data,thisActivity)
+        rv_node_list.adapter = NodeAdapter(this,data,thisActivity)
     }
 
     override fun onError(data: String) {

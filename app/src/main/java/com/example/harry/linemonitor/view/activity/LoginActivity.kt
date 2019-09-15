@@ -1,10 +1,9 @@
 package com.example.harry.linemonitor.view.activity
 
 import android.content.DialogInterface
-import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import com.example.harry.linemonitor.R
@@ -30,25 +29,31 @@ class LoginActivity : AppCompatActivity(), UserMasterContract{
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        userData = PreferencesUtility.getUserData(ctx)
+        userData = PreferencesUtility.getUserData(this)
 
-        if(!userData.token!!.isEmpty()){
-            startActivity<LandingActivity>()
-            finish()
+        try {
+
+            if (!userData.token!!.isEmpty()) {
+                startActivity<LandingActivity>()
+                finish()
+            }
+        } catch (e: Exception) {
+
         }
+
 
         thisActivity = this
 
 
         progress_bar.visibility = View.GONE
-        userMasterPresenter = UserMasterPresenter(ctx)
+        userMasterPresenter = UserMasterPresenter(this)
 
         login_button.onClick {
             var email = et_user_email.text.toString()
             var password = et_user_password.text.toString()
 
 
-            userMasterPresenter.userLogin(thisActivity,email,password,FirebaseInstanceId.getInstance().getToken()!!)
+            userMasterPresenter.userLogin(thisActivity,email,password,FirebaseInstanceId.getInstance().token!!)
 
 
         }
@@ -69,9 +74,9 @@ class LoginActivity : AppCompatActivity(), UserMasterContract{
     }
 
     override fun onLoginSuccess(data: LoginResponse?) {
-        if(data!!.data!!.id.toString().isEmpty()){
+        if (data!!.id.toString().isEmpty()) {
 
-            var alertDialog = AlertDialog.Builder(ctx)
+            var alertDialog = AlertDialog.Builder(this)
             alertDialog.setTitle("Login")
             alertDialog.setMessage(data.token)
 
@@ -82,13 +87,13 @@ class LoginActivity : AppCompatActivity(), UserMasterContract{
             var dialogData: AlertDialog =  alertDialog.create()
 
             dialogData.show()
-            dialogData.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ctx.getColor(R.color.google_blue))
+            dialogData.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(this.getColor(R.color.google_blue))
             dialogData.getButton(AlertDialog.BUTTON_NEGATIVE)
-            dialogData.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ctx.getColor(R.color.google_blue))
+            dialogData.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(this.getColor(R.color.google_blue))
 
             dialogData.show()
         }else{
-            PreferencesUtility.saveUserData(ctx,data)
+            PreferencesUtility.saveUserData(this,data)
             startActivity<LandingActivity>()
             finish()
         }
@@ -96,18 +101,25 @@ class LoginActivity : AppCompatActivity(), UserMasterContract{
     }
 
     override fun onError(data: String?) {
-        var alertDialog = AlertDialog.Builder(ctx)
-        alertDialog.setTitle("Login")
-        alertDialog.setMessage(data)
 
-        alertDialog.setNegativeButton("Dismiss", DialogInterface.OnClickListener { dialog, which ->
-            dialog.dismiss()
-        })
+        try {
+            Log.e("LoginError", data.toString())
+//            var alertDialog = AlertDialog.Builder(ctx)
+//            alertDialog.setTitle("Login")
+//            alertDialog.setMessage(data)
+//
+//            alertDialog.setNegativeButton("Dismiss", DialogInterface.OnClickListener { dialog, which ->
+//                dialog.dismiss()
+//            })
+//
+//            var dialogData: AlertDialog = alertDialog.create()
+//
+//            dialogData.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ctx.getColor(R.color.google_blue))
+//            dialogData.show()
+        } catch (e: Exception) {
+            Log.e("LoginError", e.toString())
+        }
 
-        var dialogData: AlertDialog =  alertDialog.create()
-
-        dialogData.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ctx.getColor(R.color.google_blue))
-        dialogData.show()
 
 
     }

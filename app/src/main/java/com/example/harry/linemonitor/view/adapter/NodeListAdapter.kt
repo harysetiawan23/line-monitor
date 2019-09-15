@@ -94,8 +94,8 @@ class NodeListAdapter(data: List<NodeMaster ?>?, context:Context) : BaseAdapter(
                 .buildRoundRect((1+position).toString(), viewHolder.getRandomColor(context, nodeMaster!!.isStartNode!!), 62)
 
 
-        viewHolder.lineName!!.text = nodeMaster!!.sn
-        viewHolder.lineDesc!!.text = "${nodeMaster!!.phoneNumber} \n${nodeMaster!!.lat} - ${nodeMaster!!.lng}"
+        viewHolder.lineName!!.text = nodeMaster.sn
+        viewHolder.lineDesc!!.text = "${nodeMaster.phoneNumber} \n${nodeMaster.lat} - ${nodeMaster.lng}"
         viewHolder.lineImg!!.setImageDrawable(fontDrawable)
         return convertView
     }

@@ -14,6 +14,7 @@ class UserMasterPresenter(context: Context) {
     private val context = context
 
     fun userLogin(model: UserMasterContract, email: String, password: String, fcmToken: String) {
+        Log.e("LoginError","${email} ${password} ${fcmToken}")
         var loginModel = model
         loginModel.showLoading()
         Api().getInstance(context).login(email, password, fcmToken).observeOn(AndroidSchedulers.mainThread())

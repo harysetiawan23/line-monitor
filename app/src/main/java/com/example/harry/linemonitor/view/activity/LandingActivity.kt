@@ -88,24 +88,24 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
         toggle.syncState()
 
         zoom_seekbar.setOnSeekBarChangeListener(this)
-        toolbar.setNavigationIcon(ctx.getDrawable(R.drawable.ic_menu))
+        toolbar.navigationIcon = this.getDrawable(R.drawable.ic_menu)
 
-        linePresenter = LineMasterPresenter(ctx, this)
+        linePresenter = LineMasterPresenter(this, this)
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
-        rv_line_list.layoutManager = LinearLayoutManager(ctx, LinearLayout.HORIZONTAL, false) as RecyclerView.LayoutManager?
+        rv_line_list.layoutManager = LinearLayoutManager(this, LinearLayout.HORIZONTAL, false)
 
 
         my_location_fab.setOnClickListener { view ->
-            var cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, zoom_seekbar.progress.toFloat());
-            mMap.animateCamera(cameraUpdate);
+            var cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, zoom_seekbar.progress.toFloat())
+            mMap.animateCamera(cameraUpdate)
         }
 
 
         nav_view.setNavigationItemSelectedListener(this)
         linePresenter.retriveLineFromServer()
 
-        activeUserProfile = PreferencesUtility.getUserData(ctx)
+        activeUserProfile = PreferencesUtility.getUserData(this)
         var navigationView: NavigationView = find(R.id.nav_view)
         var navHeader = navigationView.getHeaderView(0)
 
@@ -113,8 +113,8 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
         userEmail = navHeader.find(R.id.userEmail)
 
 
-        userName.text = activeUserProfile.data!!.name
-        userEmail.text = activeUserProfile.data!!.email
+        userName.text = activeUserProfile.name
+        userEmail.text = activeUserProfile.email
 
 
 
@@ -212,24 +212,24 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
         listLine = ArrayList<ArrayList<LatLng>>()
         listPin = ArrayList<MarkerOptions>()
 
-        lineAdapter = HorizontalLineAdapter(data, this, ctx)
-        rv_line_list.setAdapter(lineAdapter)
+        lineAdapter = HorizontalLineAdapter(data, this, this)
+        rv_line_list.adapter = lineAdapter
 
         data?.forEach { lineData: LineMasterMap? ->
             var line = ArrayList<LatLng>()
 
-            line.add(LatLng(lineData!!.startNodeLat!!.toDouble(), lineData!!.startNodeLng!!.toDouble()))
-            line.add(LatLng(lineData!!.endNodeLat!!.toDouble(), lineData!!.endNodeLng!!.toDouble()))
+            line.add(LatLng(lineData!!.startNodeLat!!.toDouble(), lineData.startNodeLng!!.toDouble()))
+            line.add(LatLng(lineData.endNodeLat!!.toDouble(), lineData.endNodeLng!!.toDouble()))
             listLine.add(line)
 
 
             var markerOptionStart = MarkerOptions()
-                    .position(LatLng(lineData!!.startNodeLat!!.toDouble(), lineData!!.startNodeLng!!.toDouble()))
-                    .title(lineData!!.startNodeSN)
+                    .position(LatLng(lineData.startNodeLat!!.toDouble(), lineData.startNodeLng!!.toDouble()))
+                    .title(lineData.startNodeSN)
 
             var markerOptionEnd = MarkerOptions()
-                    .position(LatLng(lineData!!.endNodeLat!!.toDouble(), lineData!!.endNodeLng!!.toDouble()))
-                    .title(lineData!!.endNodeSN)
+                    .position(LatLng(lineData.endNodeLat!!.toDouble(), lineData.endNodeLng!!.toDouble()))
+                    .title(lineData.endNodeSN)
 
             listPin.add(markerOptionStart)
             listPin.add(markerOptionEnd)
@@ -243,7 +243,7 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
                 .subscribe { granted ->
                     if (granted!!) {
                         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this) //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
                     } else {
 
@@ -284,11 +284,11 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
     override fun onHorizontalItemClick(item: LineMasterMap) {
         var selectedBounds = LatLngBounds.builder()
 
-        selectedLine = item!!
+        selectedLine = item
 
 
-        selectedBounds.include(LatLng(item!!.startNodeLat!!.toDouble(), item!!.startNodeLng!!.toDouble()))
-        selectedBounds.include(LatLng(item!!.endNodeLat!!.toDouble(), item!!.endNodeLng!!.toDouble()))
+        selectedBounds.include(LatLng(item.startNodeLat!!.toDouble(), item.startNodeLng!!.toDouble()))
+        selectedBounds.include(LatLng(item.endNodeLat!!.toDouble(), item.endNodeLng!!.toDouble()))
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currBounds.build().center, 13f))
 
@@ -362,7 +362,7 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
                 startActivity<PipeLineList>()
             }
             R.id.nav_logout -> {
-                PreferencesUtility.logout(ctx)
+                PreferencesUtility.logout(this)
                 finish()
                 startActivity<LoginActivity>()
             }
@@ -377,9 +377,9 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
 
     //Location Listener
     override fun onLocationChanged(location: Location?) {
-        var latLng = LatLng(location!!.getLatitude(), location!!.getLongitude());
+        var latLng = LatLng(location!!.latitude, location.longitude)
         myLocation = latLng
-        locationManager.removeUpdates(this);
+        locationManager.removeUpdates(this)
     }
 
 
@@ -398,9 +398,9 @@ class LandingActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
 
     //Seekbar Listener
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-        var cameraUpdate = CameraUpdateFactory.newLatLngZoom(currBounds.build().center, progress.toFloat());
-        mMap.animateCamera(cameraUpdate);
-        locationManager.removeUpdates(this);
+        var cameraUpdate = CameraUpdateFactory.newLatLngZoom(currBounds.build().center, progress.toFloat())
+        mMap.animateCamera(cameraUpdate)
+        locationManager.removeUpdates(this)
     }
 
     override fun onStartTrackingTouch(seekBar: SeekBar?) {

@@ -26,7 +26,7 @@ class Scanner : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mScannerView = ZXingScannerView(ctx)
+        mScannerView = ZXingScannerView(this)
 
         setContentView(mScannerView)
         REQUEST_CODE = intent.getStringExtra("requestCode")
@@ -70,15 +70,15 @@ class Scanner : AppCompatActivity(), ZXingScannerView.ResultHandler {
         toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150)
 
         Log.d("SCANRESULT", "REQUEST CODE = $REQUEST_CODE")
-        Log.d("SCANRESULT", rawResult!!.getText()); // Prints scan results
-        Log.d("SCANRESULT", rawResult!!.getBarcodeFormat().toString()); // Prints the scan format (qrcode, pdf417 etc.)
+        Log.d("SCANRESULT", rawResult!!.text) // Prints scan results
+        Log.d("SCANRESULT", rawResult.barcodeFormat.toString()) // Prints the scan format (qrcode, pdf417 etc.)
 
 
 
-        mScannerView.resumeCameraPreview(this);
+        mScannerView.resumeCameraPreview(this)
 
         val intent = Intent()
-        var message = rawResult!!.getText()
+        var message = rawResult.text
         intent.putExtra("SCAN_RESULT", message)
         setResult(REQUEST_CODE.toInt(), intent)
         finish()//finishing activity

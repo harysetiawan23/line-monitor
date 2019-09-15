@@ -5,15 +5,16 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import com.example.harry.linemonitor.R
-import com.example.harry.linemonitor.data.LeakageMaster
-import com.example.harry.linemonitor.data.LineMasterMap
+import com.example.harry.linemonitor.data.LineData
+import com.example.harry.linemonitor.data.LineLeakageResponse
 import org.jetbrains.anko.find
 import java.text.SimpleDateFormat
 
 
-class LeakageListAdapter(context: Context, leakageList: List<LeakageMaster?>?, private val listener: OnItemClickListener) : RecyclerView.Adapter<LeakageListAdapter.PipelineItemViewHolder>() {
+class LeakageListAdapter(context: Context, leakageList: List<LineLeakageResponse?>?, private val listener: OnItemClickListener) : RecyclerView.Adapter<LeakageListAdapter.PipelineItemViewHolder>() {
     private val context = context
     private val pipelineList = leakageList!!
 
@@ -21,7 +22,7 @@ class LeakageListAdapter(context: Context, leakageList: List<LeakageMaster?>?, p
     //    on CLick Interface
 
     interface OnItemClickListener {
-        fun onHorizontalItemClick(item: LineMasterMap)
+        fun onHorizontalItemClick(item: String)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int): PipelineItemViewHolder {
@@ -38,7 +39,7 @@ class LeakageListAdapter(context: Context, leakageList: List<LeakageMaster?>?, p
     }
 
     override fun onBindViewHolder(holder: PipelineItemViewHolder, position: Int) {
-        holder.bind(pipelineList!!.get(position)!!, listener, context)
+        holder.bind(pipelineList.get(position)!!, listener, context)
     }
 
 
@@ -46,20 +47,25 @@ class LeakageListAdapter(context: Context, leakageList: List<LeakageMaster?>?, p
         var leakageDay: TextView
         var leakageDate: TextView
         var leakageTime: TextView
+        var lineName: TextView
+        var notSolvedButton: Button
+        var solvedButton: Button
 
 
         init {
+            lineName = itemView.find(R.id.timeline_line_name)
             leakageDay = itemView.find(R.id.timeline_day)
             leakageDate = itemView.find(R.id.timeline_date)
             leakageTime = itemView.find(R.id.timeline_time)
-
+            notSolvedButton = itemView.find(R.id.btn_acton_not_solved)
+            solvedButton = itemView.find(R.id.btn_acton_solved)
 
         }
 
 
-        fun bind(item: LeakageMaster, listener: OnItemClickListener, context: Context) {
+        fun bind(item: LineLeakageResponse, listener: OnItemClickListener, context: Context) {
 
-            val inFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+            val inFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
             val dateSource = inFormat.parse(item.createdAt.toString())
 
             val getDay = SimpleDateFormat("EEEE")
@@ -74,6 +80,20 @@ class LeakageListAdapter(context: Context, leakageList: List<LeakageMaster?>?, p
             leakageDay.text = dateName
             leakageDate.text = dateString
             leakageTime.text = time
+            lineName.text = item.lineData!!.name!!
+
+            if (item.solved!! == 1) {
+                notSolvedButton.visibility = View.GONE
+                solvedButton.visibility = View.VISIBLE
+            } else {
+                notSolvedButton.visibility = View.VISIBLE
+                solvedButton.visibility = View.GONE
+
+                notSolvedButton.setOnClickListener(View.OnClickListener { v: View? ->
+                    listener.onHorizontalItemClick(item.leakId!!)
+
+                })
+            }
 
 
         }

@@ -353,6 +353,83 @@
 
             </android.support.v7.widget.CardView>
 
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginRight="10dp"
+                app:cardElevation="2dp"
+                app:contentPadding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_flow_leakage_seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/sf_bold"
+                        android:layout_marginBottom="6dp"
+                        android:text="Flowrate Leakage Ratio ( % )" />
+
+                    <EditText
+                        android:id="@+id/et_flow_rate_ratio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_rounded_grey"
+                        android:inputType="numberDecimal"
+                        android:padding="12dp"
+                        android:singleLine="true" />
+
+
+                    <TextView
+                        android:id="@+id/tv_pressure_leakage_seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/sf_bold"
+                        android:layout_marginBottom="6dp"
+                        android:text="Pressure Leakage Treshold ( % )" />
+
+                    <EditText
+                        android:id="@+id/et_pressure_leak_ratio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_rounded_grey"
+                        android:inputType="numberDecimal"
+                        android:padding="12dp"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:id="@+id/tv_pressure_check_duration"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/sf_bold"
+                        android:layout_marginBottom="6dp"
+                        android:text="Pressure Leak Check Duration ( minutes )" />
+
+                    <EditText
+                        android:id="@+id/et_pressure_leak_duration"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_rounded_grey"
+                        android:inputType="numberDecimal"
+                        android:padding="12dp"
+                        android:singleLine="true" />
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -21,18 +21,16 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.SeekBar
-import android.widget.Toast
 import com.example.harry.linemonitor.R
-import com.example.harry.linemonitor.data.LineMaster
-import com.example.harry.linemonitor.data.LineMasterMap
-import com.example.harry.linemonitor.data.RealtimeData
-import com.example.harry.linemonitor.data.StatItem
+import com.example.harry.linemonitor.data.*
 import com.example.harry.linemonitor.view.contract.LineMasterContract
 import com.example.harry.linemonitor.view.presenter.LineMasterPresenter
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.nkzawa.socketio.client.IO
+import com.github.nkzawa.socketio.client.Socket
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -49,7 +47,9 @@ import org.jetbrains.anko.ctx
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.textColor
-import java.util.*
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 
 class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEventListener, SeekBar.OnSeekBarChangeListener, GoogleMap.OnMarkerClickListener, ActivityCompat.OnRequestPermissionsResultCallback, LocationListener, LineMasterContract {
@@ -80,6 +80,12 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     private lateinit var lineMasterPresenter: LineMasterPresenter
     private lateinit var mapFragment: SupportMapFragment
 
+    private lateinit var mSocket: Socket
+
+
+
+
+
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +106,7 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
-        lineMasterPresenter = LineMasterPresenter(ctx, this)
+        lineMasterPresenter = LineMasterPresenter(this, this)
 
         zoom_seekbar.setOnSeekBarChangeListener(this)
 
@@ -114,6 +120,15 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
         channel.bind(EVENT_NAME, this)
         pusher.connect()
 
+        tv_start_node_name.text = lineMaster.startNodeSN
+        tv_start_node_sn_.text = lineMaster.startNodeSN
+        tv_start_node_number_.text = lineMaster.startNodePhone
+        tv_end_node_name.text = lineMaster.endNodeSN
+        tv_end_node_sn_.text = lineMaster.endNodeSN
+        tv_end_node_number_.text = lineMaster.endNodePhone
+
+        mapFragment.getMapAsync(this)
+
         val rxPermissions = RxPermissions(this)
         rxPermissions
                 .request(Manifest.permission.ACCESS_FINE_LOCATION,
@@ -121,7 +136,7 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
                 .subscribe { granted ->
                     if (granted!!) {
                         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this) //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
                     } else {
 
@@ -131,8 +146,8 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
         my_location_fab.setOnClickListener { view ->
             try {
-                var cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, zoom_seekbar.progress.toFloat());
-                mMap.animateCamera(cameraUpdate);
+                var cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, zoom_seekbar.progress.toFloat())
+                mMap.animateCamera(cameraUpdate)
             } catch (e: Exception) {
 
             }
@@ -142,8 +157,8 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
         my_pipeline_fab.onClick {
             try {
-                var cameraUpdate = CameraUpdateFactory.newLatLngZoom(bounds.build().center, zoom_seekbar.progress.toFloat());
-                mMap.animateCamera(cameraUpdate);
+                var cameraUpdate = CameraUpdateFactory.newLatLngZoom(bounds.build().center, zoom_seekbar.progress.toFloat())
+                mMap.animateCamera(cameraUpdate)
             } catch (e: Exception) {
 
             }
@@ -152,7 +167,13 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
 
         progress_bar.visibility = View.GONE
+
         lineMasterNew = LineMasterMap()
+
+        mSocket = IO.socket("http://23.101.26.206")
+        mSocket.connect()
+        mSocket.on("line-stat/${lineMaster.id}", onLineStatMessage)
+        mSocket.on("line-record/${lineMaster.id}", onLineGraphMessage)
 
 
     }
@@ -163,13 +184,213 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     }
 
 
+    private val onLineStatMessage = com.github.nkzawa.emitter.Emitter.Listener { args ->
+        runOnUiThread(Runnable {
+
+
+            val data = args[0] as JSONObject
+
+            try {
+
+                tv_start_node_flow.text = "%.0f".format(data.getDouble("lastStartNodeFlow"))
+                tv_start_node_pressure.text = "%.0f".format(data.getDouble("lastStartNodePressure"))
+
+
+
+                tv_end_node_flow.text = "%.0f".format(data.getDouble("lastEndNodeFlow"))
+                tv_end_node_pressure.text = "%.1f".format(data.getDouble("lastEndNodePressure"))
+
+
+                val flowReduce = "%.0f".format(data.getDouble("startFlow")-data.getDouble("endFlow"))
+                val pressureReduce = "%.0f".format(data.getDouble("startPressure")-data.getDouble("endPressure"))
+
+                if (data.getDouble("flowRatio") > 0) {
+                    tv_flow_rate_loss.text = "%.0f".format(data.getDouble("flowRatio") * 100) + " % \n( ${flowReduce} L/m )"
+                    tv_flow_rate_loss.textColor = this.resources.getColor(R.color.google_red)
+                    iv_flow_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_caret_down))
+                } else if (data.getDouble("flowRatio") < 0) {
+                    tv_flow_rate_loss.text = "%.0f".format(data.getDouble("flowRatio") * 100) + " % \n( ${flowReduce} L/m  )"
+                    tv_flow_rate_loss.textColor = this.resources.getColor(R.color.google_green)
+                    iv_flow_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_caret_arrow_up))
+                } else {
+                    iv_flow_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_updown))
+                    tv_flow_rate_loss.text = "%.0f".format(data.getDouble("flowRatio") * 100) + " % \n( ${flowReduce} L/m  )"
+                    tv_flow_rate_loss.textColor = this.resources.getColor(R.color.background)
+                }
+
+
+                if (data.getDouble("pressureRatio") > 0) {
+                    tv_pressure_loss.text = "%.0f".format(data.getDouble("pressureRatio") * 100) + " % \n( ${pressureReduce} bars )"
+                    tv_pressure_loss.textColor = this.resources.getColor(R.color.google_red)
+                    iv_pressure_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_caret_down))
+                } else if (data.getDouble("pressureRatio") < 0) {
+                    tv_pressure_loss.text = "%.0f".format(data.getDouble("pressureRatio") * 100) + " % \n( ${pressureReduce} bars )"
+                    tv_pressure_loss.textColor = this.resources.getColor(R.color.google_green)
+                    iv_pressure_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_caret_arrow_up))
+                } else {
+                    iv_pressure_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_updown))
+                    tv_pressure_loss.text = "%.0f".format(data.getDouble("pressureRatio") * 100) +" % \n( ${pressureReduce} bars )"
+                    tv_pressure_loss.textColor = this.resources.getColor(R.color.background)
+                }
+
+
+            } catch (e: JSONException) {
+                return@Runnable
+            }
+
+
+        })
+    }
+
+    private val onLineGraphMessage = com.github.nkzawa.emitter.Emitter.Listener { args ->
+        runOnUiThread(Runnable {
+            try {
+
+
+                val data = args[0] as JSONArray
+
+                var startNodeFlowEntry = ArrayList<Entry>()
+                var endNodeFlowEntry = ArrayList<Entry>()
+
+
+                var startNodePressureEntry = ArrayList<Entry>()
+                var endNodePressureEntry = ArrayList<Entry>()
+
+
+                var xValue = ArrayList<String>()
+
+
+
+                for (i in (data.length() - 1) downTo 0) {
+
+
+                    var recordData = data[i] as JSONObject
+
+                    var lineSocketRecord = LineSocketRecord(
+                            lineId = recordData.getString("lineId"),
+                            days = recordData.getString("days"),
+                            endFlow = recordData.getString("endFlow"),
+                            endPressure = recordData.getString("endPressure"),
+                            hours = recordData.getString("hours"),
+                            minutes = recordData.getString("minutes"),
+                            startFlow = recordData.getString("startFlow"),
+                            startPressure = recordData.getString("startPressure")
+                    )
+
+
+                    startNodeFlowEntry.add(Entry(lineSocketRecord.startFlow!!.toFloat(), i))
+                    endNodeFlowEntry.add(Entry(lineSocketRecord.endFlow!!.toFloat(), i))
+
+
+                    startNodePressureEntry.add(Entry(lineSocketRecord.startPressure!!.toFloat(), i))
+                    endNodePressureEntry.add(Entry(lineSocketRecord.endPressure!!.toFloat(), i))
+
+                    xValue.add("${lineSocketRecord.hours} : ${lineSocketRecord.minutes}")
+                }
+
+
+                var colors = intArrayOf(R.color.google_blue, android.R.color.white)
+                var index = floatArrayOf(0f, 1f)
+
+
+                var startFlowDataSet = LineDataSet(startNodeFlowEntry, lineMaster.startNodeSN)
+                startFlowDataSet.color = ContextCompat.getColor(this, R.color.google_blue)
+                startFlowDataSet.setDrawCircles(false)
+                startFlowDataSet.setDrawFilled(true)
+                startFlowDataSet.fillColor = ContextCompat.getColor(this, R.color.google_blue)
+                startFlowDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
+
+
+                var endFlowDataSet = LineDataSet(endNodeFlowEntry, lineMaster.endNodeSN)
+                endFlowDataSet.color = ContextCompat.getColor(this, R.color.google_red)
+                endFlowDataSet.setDrawCircles(false)
+                endFlowDataSet.setDrawFilled(true)
+                endFlowDataSet.fillColor = ContextCompat.getColor(this, R.color.google_red)
+                endFlowDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
+
+
+                var startPressureDataSet = LineDataSet(startNodePressureEntry, lineMaster.startNodeSN)
+                startPressureDataSet.color = ContextCompat.getColor(this, R.color.google_blue)
+                startPressureDataSet.setDrawCircles(false)
+                startPressureDataSet.setDrawFilled(true)
+                startPressureDataSet.fillColor = ContextCompat.getColor(this, R.color.google_blue)
+                startPressureDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
+
+
+                var endPressureDataSet = LineDataSet(endNodePressureEntry, lineMaster.endNodeSN)
+                endPressureDataSet.color = ContextCompat.getColor(this, R.color.google_red)
+                endPressureDataSet.setDrawCircles(false)
+                endPressureDataSet.setDrawFilled(true)
+                endPressureDataSet.fillColor = ContextCompat.getColor(this, R.color.google_red)
+                endPressureDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
+
+
+                val flowDataSets = java.util.ArrayList<ILineDataSet>()
+                flowDataSets.add(startFlowDataSet)
+                flowDataSets.add(endFlowDataSet)
+
+                val pressureDataSets = java.util.ArrayList<ILineDataSet>()
+                pressureDataSets.add(startPressureDataSet)
+                pressureDataSets.add(endPressureDataSet)
+
+
+                val l = flow_chart.legend
+                l.textSize = 16f
+
+
+                val lp = pressure_chart.legend
+                lp.textSize = 16f
+
+                val right = flow_chart.axisRight
+                right.setDrawLabels(true)
+                right.textSize = 0f
+                right.textColor = Color.WHITE
+                right.setDrawLabels(false)
+                right.setDrawAxisLine(false)
+                right.setDrawGridLines(false)
+                right.setDrawZeroLine(false)
+
+
+                var flow = LineData(xValue, flowDataSets)
+                var pressure = LineData(xValue, pressureDataSets)
+
+
+                flow_chart.data = flow
+                flow_chart.animateX(0)
+                flow_chart.animateY(0)
+
+                //refresh
+                flow_chart.invalidate()
+                flow_chart.animateX(0)
+                flow_chart.animateY(0)
+
+
+                pressure_chart.data = pressure
+                pressure_chart.animateX(0)
+                pressure_chart.animateY(0)
+                //refresh
+                pressure_chart.invalidate()
+                pressure_chart.animateX(0)
+                pressure_chart.animateY(0)
+
+
+            } catch (e: java.lang.Exception) {
+                Log.e("ERROR", e.toString())
+            }
+
+
+        })
+    }
+
+
+
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> finish()
             R.id.edit_pipeline -> {
 
-                var intent = Intent(ctx, EditPipeLine::class.java)
+                var intent = Intent(this, EditPipeLine::class.java)
                 intent.putExtra("lineData", lineMaster)
                 intent.putExtra("resultCode", EDIT_ACTION_PERFORMED)
                 startActivityForResult(intent, EDIT_ACTION_PERFORMED)
@@ -194,21 +415,21 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
         bounds = LatLngBounds.builder()
 
-        bounds.include(LatLng(lineMasterNew!!.startNodeLat!!.toDouble(), lineMasterNew!!.startNodeLng!!.toDouble()))
-        bounds.include(LatLng(lineMasterNew!!.endNodeLat!!.toDouble(), lineMasterNew!!.endNodeLng!!.toDouble()))
+        bounds.include(LatLng(lineMaster.startNodeLat!!.toDouble(), lineMaster.startNodeLng!!.toDouble()))
+        bounds.include(LatLng(lineMaster.endNodeLat!!.toDouble(), lineMaster.endNodeLng!!.toDouble()))
 
 
         var startNodeMarker = MarkerOptions()
-                .position(LatLng(lineMasterNew!!.startNodeLat!!.toDouble(), lineMasterNew!!.startNodeLng!!.toDouble()))
-                .title(lineMasterNew!!.startNodeSN)
+                .position(LatLng(lineMaster.startNodeLat!!.toDouble(), lineMaster.startNodeLng!!.toDouble()))
+                .title(lineMaster.startNodeSN)
         var endNodeMarker = MarkerOptions()
-                .position(LatLng(lineMasterNew!!.endNodeLat!!.toDouble(), lineMasterNew!!.endNodeLng!!.toDouble()))
-                .title(lineMasterNew!!.endNodeSN)
+                .position(LatLng(lineMaster.endNodeLat!!.toDouble(), lineMaster.endNodeLng!!.toDouble()))
+                .title(lineMaster.endNodeSN)
 
 
         var nodeList = ArrayList<LatLng>()
-        nodeList.add(LatLng(lineMasterNew!!.startNodeLat!!.toDouble(), lineMasterNew!!.startNodeLng!!.toDouble()))
-        nodeList.add(LatLng(lineMasterNew!!.endNodeLat!!.toDouble(), lineMasterNew!!.endNodeLng!!.toDouble()))
+        nodeList.add(LatLng(lineMaster.startNodeLat!!.toDouble(), lineMaster.startNodeLng!!.toDouble()))
+        nodeList.add(LatLng(lineMaster.endNodeLat!!.toDouble(), lineMaster.endNodeLng!!.toDouble()))
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, zoom_seekbar.progress.toFloat()))
         mMap.addPolyline(PolylineOptions().addAll(nodeList).width(12f)
@@ -251,10 +472,15 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
             println("Received event with data: $data")
             val gson = Gson()
             val lineRecords = gson.fromJson(data, RealtimeData::class.java)
-            Log.d("DataFromEvent", lineRecords.toString())
+
             updateNodRecords(lineRecords)
 
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        lineMasterPresenter.refreshLineMaster(lineMaster.id.toString())
     }
 
     //Event View Updater
@@ -264,42 +490,42 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
                 if (lineMasterNew.id == statItem!!.id) {
 
 
-                    tv_start_node_flow.text = "%.0f".format(statItem!!.lastStartNodeFlow)
-                    tv_start_node_pressure.text = "%.0f".format(statItem!!.lastStartNodePressure)
+                    tv_start_node_flow.text = "%.0f".format(statItem.lastStartNodeFlow)
+                    tv_start_node_pressure.text = "%.0f".format(statItem.lastStartNodePressure)
 
 
-                    tv_end_node_flow.text = "%.0f".format(statItem!!.lastEndNodeFlow)
-                    tv_end_node_pressure.text = "%.1f".format(statItem!!.lastEndNodePressure)
+                    tv_end_node_flow.text = "%.0f".format(statItem.lastEndNodeFlow)
+                    tv_end_node_pressure.text = "%.1f".format(statItem.lastEndNodePressure)
 
 
 
-                    if (statItem!!.flowRatio!! > 0) {
-                        tv_flow_rate_loss.text = "%.0f".format(statItem!!.flowRatio!! * 100) + " %"
-                        tv_flow_rate_loss.textColor = ctx.resources.getColor(R.color.google_red)
-                        iv_flow_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_down))
-                    } else if (statItem!!.flowRatio!! < 0) {
-                        tv_flow_rate_loss.text = "%.0f".format(statItem!!.flowRatio!! * 100) + " %"
-                        tv_flow_rate_loss.textColor = ctx.resources.getColor(R.color.google_green)
-                        iv_flow_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_arrow_up))
+                    if (statItem.flowRatio!! > 0) {
+                        tv_flow_rate_loss.text = "%.0f".format(statItem.flowRatio!! * 100) + " %"
+                        tv_flow_rate_loss.textColor = this.resources.getColor(R.color.google_red)
+                        iv_flow_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_caret_down))
+                    } else if (statItem.flowRatio!! < 0) {
+                        tv_flow_rate_loss.text = "%.0f".format(statItem.flowRatio!! * 100) + " %"
+                        tv_flow_rate_loss.textColor = this.resources.getColor(R.color.google_green)
+                        iv_flow_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_caret_arrow_up))
                     } else {
-                        iv_flow_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_updown))
-                        tv_flow_rate_loss.text = "%.0f".format(statItem!!.flowRatio!! * 100) + " %"
-                        tv_flow_rate_loss.textColor = ctx.resources.getColor(R.color.background)
+                        iv_flow_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_updown))
+                        tv_flow_rate_loss.text = "%.0f".format(statItem.flowRatio!! * 100) + " %"
+                        tv_flow_rate_loss.textColor = this.resources.getColor(R.color.background)
                     }
 
 
-                    if (statItem!!.pressureRatio!! > 0) {
-                        tv_pressure_loss.text = "%.0f".format(statItem!!.pressureRatio!! * 100) + " %"
-                        tv_pressure_loss.textColor = ctx.resources.getColor(R.color.google_red)
-                        iv_pressure_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_down))
-                    } else if (statItem!!.pressureRatio!! < 0) {
-                        tv_pressure_loss.text = "%.0f".format(statItem!!.pressureRatio!! * 100) + " %"
-                        tv_pressure_loss.textColor = ctx.resources.getColor(R.color.google_green)
-                        iv_pressure_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_caret_arrow_up))
+                    if (statItem.pressureRatio!! > 0) {
+                        tv_pressure_loss.text = "%.0f".format(statItem.pressureRatio!! * 100) + " %"
+                        tv_pressure_loss.textColor = this.resources.getColor(R.color.google_red)
+                        iv_pressure_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_caret_down))
+                    } else if (statItem.pressureRatio!! < 0) {
+                        tv_pressure_loss.text = "%.0f".format(statItem.pressureRatio!! * 100) + " %"
+                        tv_pressure_loss.textColor = this.resources.getColor(R.color.google_green)
+                        iv_pressure_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_caret_arrow_up))
                     } else {
-                        iv_pressure_sign.setImageDrawable(ctx.resources.getDrawable(R.drawable.ic_updown))
-                        tv_pressure_loss.text = "%.0f".format(statItem!!.pressureRatio!! * 100) + " %"
-                        tv_pressure_loss.textColor = ctx.resources.getColor(R.color.background)
+                        iv_pressure_sign.setImageDrawable(this.resources.getDrawable(R.drawable.ic_updown))
+                        tv_pressure_loss.text = "%.0f".format(statItem.pressureRatio!! * 100) + " %"
+                        tv_pressure_loss.textColor = this.resources.getColor(R.color.background)
                     }
 
 
@@ -308,118 +534,6 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
 
             data.lineRecords?.graph?.forEachWithIndex { i, graphItem ->
-                var startNodeFlowEntry = ArrayList<Entry>()
-                var endNodeFlowEntry = ArrayList<Entry>()
-
-
-                var startNodePressureEntry = ArrayList<Entry>()
-                var endNodePressureEntry = ArrayList<Entry>()
-
-
-                var xValue = ArrayList<String>()
-
-                if (lineMasterNew.id === graphItem?.lineId) {
-
-                    if(graphItem?.lineId==7){
-                        Log.i("Data", graphItem?.data.toString())
-//                        Toast.makeText(ctx,graphItem?.data.toString(),Toast.LENGTH_SHORT).show()
-                    }
-
-
-                    graphItem!!.data!!.reversed()!!.forEachWithIndex { i, dataItem ->
-                        xValue.add("${dataItem!!.hours} : ${dataItem!!.minutes}")
-                        startNodeFlowEntry.add(Entry(dataItem?.startFlow!!.toFloat(), i))
-                        endNodeFlowEntry.add(Entry(dataItem?.endFlow!!.toFloat(), i))
-
-
-                        startNodePressureEntry.add(Entry(dataItem?.startPressure!!.toFloat(), i))
-                        endNodePressureEntry.add(Entry(dataItem?.endPressure!!.toFloat(), i))
-                    }
-
-
-                }
-                var colors = intArrayOf(R.color.google_blue, android.R.color.white)
-                var index = floatArrayOf(0f, 1f)
-
-
-                var startFlowDataSet = LineDataSet(startNodeFlowEntry, lineMaster.startNodeSN)
-                startFlowDataSet.setColor(ContextCompat.getColor(this, R.color.google_blue));
-                startFlowDataSet.setDrawCircles(false)
-                startFlowDataSet.setDrawFilled(true)
-                startFlowDataSet.fillColor = ContextCompat.getColor(this, R.color.google_blue)
-                startFlowDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
-
-
-                var endFlowDataSet = LineDataSet(endNodeFlowEntry, lineMaster.endNodeSN)
-                endFlowDataSet.setColor(ContextCompat.getColor(this, R.color.google_red));
-                endFlowDataSet.setDrawCircles(false)
-                endFlowDataSet.setDrawFilled(true)
-                endFlowDataSet.fillColor = ContextCompat.getColor(this, R.color.google_red)
-                endFlowDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
-
-
-                var startPressureDataSet = LineDataSet(startNodePressureEntry, lineMaster.startNodeSN)
-                startPressureDataSet.setColor(ContextCompat.getColor(this, R.color.google_blue));
-                startPressureDataSet.setDrawCircles(false)
-                startPressureDataSet.setDrawFilled(true)
-                startPressureDataSet.fillColor = ContextCompat.getColor(this, R.color.google_blue)
-                startPressureDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
-
-
-                var endPressureDataSet = LineDataSet(endNodePressureEntry, lineMaster.endNodeSN)
-                endPressureDataSet.setColor(ContextCompat.getColor(this, R.color.google_red));
-                endPressureDataSet.setDrawCircles(false)
-                endPressureDataSet.setDrawFilled(true)
-                endPressureDataSet.fillColor = ContextCompat.getColor(this, R.color.google_red)
-                endPressureDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
-
-
-                val flowDataSets = java.util.ArrayList<ILineDataSet>()
-                flowDataSets.add(startFlowDataSet)
-                flowDataSets.add(endFlowDataSet)
-
-                val pressureDataSets = java.util.ArrayList<ILineDataSet>()
-                pressureDataSets.add(startPressureDataSet)
-                pressureDataSets.add(endPressureDataSet)
-
-
-                val l = flow_chart.legend
-                l.setTextSize(16f)
-
-
-                val lp = pressure_chart.legend
-                lp.setTextSize(16f)
-
-                val right = flow_chart.axisRight
-                right.setDrawLabels(true)
-                right.textSize = 0f
-                right.textColor = Color.WHITE
-                right.setDrawLabels(false)
-                right.setDrawAxisLine(false)
-                right.setDrawGridLines(false)
-                right.setDrawZeroLine(false)
-
-
-                var data = LineData(xValue, flowDataSets)
-                var pressure = LineData(xValue, pressureDataSets)
-
-
-                flow_chart.setData(data);
-                flow_chart.animateX(0);
-                flow_chart.animateY(0)
-                //refresh
-                flow_chart.invalidate();
-                flow_chart.animateX(0)
-                flow_chart.animateY(0)
-
-
-                pressure_chart.setData(pressure);
-                pressure_chart.animateX(0);
-                pressure_chart.animateY(0);
-                //refresh
-                pressure_chart.invalidate();
-                pressure_chart.animateX(0);
-                pressure_chart.animateY(0);
 
 
             }
@@ -456,10 +570,10 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     //Marker CLick
 
     override fun onMarkerClick(marker: Marker?): Boolean {
-        var gmapsIntentUri = Uri.parse("google.navigation:q=${marker!!.position.latitude},${marker!!.position.longitude}")
+        var gmapsIntentUri = Uri.parse("google.navigation:q=${marker!!.position.latitude},${marker.position.longitude}")
         var mapIntent = Intent(Intent.ACTION_VIEW, gmapsIntentUri)
-        mapIntent.setPackage("com.google.android.apps.maps");
-        startActivity(mapIntent);
+        mapIntent.setPackage("com.google.android.apps.maps")
+        startActivity(mapIntent)
 
         return true
     }
@@ -467,9 +581,9 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
 
     //Location Listener
     override fun onLocationChanged(location: Location?) {
-        var latLng = LatLng(location!!.getLatitude(), location!!.getLongitude());
+        var latLng = LatLng(location!!.latitude, location.longitude)
         myLocation = latLng
-        locationManager.removeUpdates(this);
+        locationManager.removeUpdates(this)
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
@@ -500,11 +614,6 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     }
 
 
-    override fun onResume() {
-        super.onResume()
-
-        lineMasterPresenter.refreshLineMaster(lineMaster.id.toString())
-    }
 
 
     //Line Master View Contract
@@ -521,15 +630,7 @@ class PipelineStream : AppCompatActivity(), OnMapReadyCallback, SubscriptionEven
     }
 
     override fun onRefreshData(data: LineMasterMap?) {
-        lineMasterNew = data!!
-        tv_start_node_name.text = lineMasterNew.startNodeSN
-        tv_start_node_sn_.text = lineMasterNew.startNodeSN
-        tv_start_node_number_.text = lineMasterNew.startNodePhone
-        tv_end_node_name.text = lineMasterNew.endNodeSN
-        tv_end_node_sn_.text = lineMasterNew.endNodeSN
-        tv_end_node_number_.text = lineMasterNew.endNodePhone
 
-        mapFragment.getMapAsync(this)
     }
 
     override fun onUpdateSuccess(data: LineMaster?) {

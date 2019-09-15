@@ -43,7 +43,7 @@ class PipelineListAdapter(context: Context, pipelineList: List<LineMasterMap?>?,
     }
 
     override fun onBindViewHolder(holder: PipelineItemViewHolder, position: Int) {
-        holder.bind(pipelineList!!.get(position)!!, listener, context)
+        holder.bind(pipelineList.get(position)!!, listener, context)
     }
 
 
@@ -76,10 +76,10 @@ class PipelineListAdapter(context: Context, pipelineList: List<LineMasterMap?>?,
         fun bind(item: LineMasterMap, listener: OnItemClickListener, context: Context) {
             lineName.text = item.name
             itemView.setOnClickListener { listener.onHorizontalItemClick(item) }
-            lineDiameter.text = "${item!!.diameter.toString()} inch"
-            lineThickness.text = "${item!!.thicknes.toString()} inch"
-            lineManufacture.text = "${item!!.manufacture.toString()}"
-            lineDesc.text = "${item!!.start} - ${item!!.end}"
+            lineDiameter.text = "${item.diameter.toString()} inch"
+            lineThickness.text = "${item.thicknes.toString()} inch"
+            lineManufacture.text = "${item.manufacture.toString()}"
+            lineDesc.text = "${item.start} - ${item.end}"
 
 
             val rand = Random()
@@ -92,7 +92,7 @@ class PipelineListAdapter(context: Context, pipelineList: List<LineMasterMap?>?,
             }
 
             val fontDrawable = TextDrawable.builder()
-                    .buildRoundRect(item!!.distance.toString(), getRandomColor(context, 1), 62)
+                    .buildRoundRect(item.distance.toString(), getRandomColor(context, 1), 62)
 
 
             val animation = AnimationUtils

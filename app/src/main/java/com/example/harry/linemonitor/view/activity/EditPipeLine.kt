@@ -33,19 +33,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_edit_pipe_line.*
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.progress_bar
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.submit_button
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.toolbar
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_end_node
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_end_node_lat
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_end_node_lng
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_end_node_phone
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_end_node_sn
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_start_node
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_start_node_lat
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_start_node_lng
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_start_node_phone
-import kotlinx.android.synthetic.main.activity_edit_pipe_line.tv_start_node_sn
 import org.jetbrains.anko.ctx
 import java.util.*
 
@@ -94,7 +81,7 @@ class EditPipeLine : AppCompatActivity(), LocationListener, OnMapReadyCallback, 
                 .subscribe { granted ->
                     if (granted!!) {
                         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this) //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
                     } else {
 
@@ -102,7 +89,7 @@ class EditPipeLine : AppCompatActivity(), LocationListener, OnMapReadyCallback, 
                 }
 
         lineMaster = intent.getSerializableExtra("lineData") as LineMasterMap
-        lineMasterPresenter = LineMasterPresenter(ctx,this)
+        lineMasterPresenter = LineMasterPresenter(this,this)
 
         REQUEST_CODE = intent.getIntExtra("resultCode", 1)
 
@@ -126,6 +113,10 @@ class EditPipeLine : AppCompatActivity(), LocationListener, OnMapReadyCallback, 
         tv_end_node_lat.text = lineMaster.endNodeLat
         tv_end_node_lng.text = lineMaster.endNodeLng
 
+        et_pressure_leak_duration.setText((lineMaster.pressureCheckDuration!!).toString())
+        et_pressure_leak_ratio.setText(Math.floor(lineMaster.pressureLeakage!!.toDouble() * 100).toString())
+        et_flow_rate_ratio.setText((lineMaster.flowLeakageTreshold!!.toDouble() * 100).toString())
+
         updateLineMaster.startNodeId = lineMaster.startNodeId.toString()
         updateLineMaster.endNodeId = lineMaster.endNodeId.toString()
 
@@ -137,34 +128,26 @@ class EditPipeLine : AppCompatActivity(), LocationListener, OnMapReadyCallback, 
     }
 
 
-    override fun onResume() {
-        super.onResume()
-
-
-
-
-    }
-
     override fun onMapReady(googleMap: GoogleMap?) {
         mMap = googleMap!!
 
         bounds = LatLngBounds.builder()
 
-        bounds.include(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
-        bounds.include(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
+        bounds.include(LatLng(lineMaster.startNodeLat!!.toDouble(), lineMaster.startNodeLng!!.toDouble()))
+        bounds.include(LatLng(lineMaster.endNodeLat!!.toDouble(), lineMaster.endNodeLng!!.toDouble()))
 
 
         var startNodeMarker = MarkerOptions()
-                .position(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
-                .title(lineMaster!!.startNodeSN)
+                .position(LatLng(lineMaster.startNodeLat!!.toDouble(), lineMaster.startNodeLng!!.toDouble()))
+                .title(lineMaster.startNodeSN)
         var endNodeMarker = MarkerOptions()
-                .position(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
-                .title(lineMaster!!.endNodeSN)
+                .position(LatLng(lineMaster.endNodeLat!!.toDouble(), lineMaster.endNodeLng!!.toDouble()))
+                .title(lineMaster.endNodeSN)
 
 
         var nodeList = ArrayList<LatLng>()
-        nodeList.add(LatLng(lineMaster!!.startNodeLat!!.toDouble(), lineMaster!!.startNodeLng!!.toDouble()))
-        nodeList.add(LatLng(lineMaster!!.endNodeLat!!.toDouble(), lineMaster!!.endNodeLng!!.toDouble()))
+        nodeList.add(LatLng(lineMaster.startNodeLat!!.toDouble(), lineMaster.startNodeLng!!.toDouble()))
+        nodeList.add(LatLng(lineMaster.endNodeLat!!.toDouble(), lineMaster.endNodeLng!!.toDouble()))
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.build().center, 13f))
         mMap.addPolyline(PolylineOptions().addAll(nodeList).width(12f)
@@ -201,45 +184,50 @@ class EditPipeLine : AppCompatActivity(), LocationListener, OnMapReadyCallback, 
     override fun onClick(v: View?) {
         when (v!!.id) {
             R.id.delete_line -> {
-                var alertDialog = AlertDialog.Builder(ctx)
-                alertDialog.setTitle("Delete Pipeline")
-                alertDialog.setMessage("Are you sure to delete this line?")
+                try {
+                    var alertDialog = AlertDialog.Builder(this)
+                    alertDialog.setTitle("Delete Pipeline")
+                    alertDialog.setMessage("Are you sure to delete this line?")
 
-                var intent = Intent()
-                intent.putExtra("isEditPerformed", true)
-
-
-                alertDialog.setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
-                    lineMasterPresenter.deleteLineMaster(lineMaster.id.toString())
-                    setResult(REQUEST_CODE, intent)
-                    dialog.dismiss()
-                    finish()
-                })
+                    var intent = Intent()
+                    intent.putExtra("isEditPerformed", true)
 
 
-                alertDialog.setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
-                    dialog.dismiss()
-                })
+                    alertDialog.setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
+                        lineMasterPresenter.deleteLineMaster(lineMaster.id.toString())
+                        setResult(REQUEST_CODE, intent)
+                        dialog.dismiss()
+                        finish()
+                    })
 
-                var dialogData: AlertDialog = alertDialog.create()
 
-                dialogData.show()
-                dialogData.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ctx.getColor(R.color.google_blue))
-                dialogData.getButton(AlertDialog.BUTTON_NEGATIVE)
-                dialogData.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ctx.getColor(R.color.google_blue))
+                    alertDialog.setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
+                        dialog.dismiss()
+                    })
 
-                dialogData.show()
+                    var dialogData: AlertDialog = alertDialog.create()
+
+                    dialogData.show()
+                    dialogData.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(this.getColor(R.color.google_blue))
+                    dialogData.getButton(AlertDialog.BUTTON_NEGATIVE)
+                    dialogData.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(this.getColor(R.color.google_blue))
+
+                    dialogData.show()
+
+                } catch (e: Exception) {
+
+                }
 
             }
 
             R.id.tv_start_node -> {
-                var intent = Intent(ctx, SelectNode::class.java)
+                var intent = Intent(this, SelectNode::class.java)
                 intent.putExtra("isSelectMode", true)
                 startActivityForResult(intent, REQURST_START_NODE_DATA)
             }
 
             R.id.tv_end_node -> {
-                var intent = Intent(ctx, SelectNode::class.java)
+                var intent = Intent(this, SelectNode::class.java)
                 intent.putExtra("isSelectMode", true)
                 startActivityForResult(intent, REQURST_END_NODE_DATA)
             }
@@ -254,6 +242,9 @@ class EditPipeLine : AppCompatActivity(), LocationListener, OnMapReadyCallback, 
                 updateLineMaster.distance = et_pipeline_length.text.toString()
                 updateLineMaster.thicknes = et_pipeline_thickness.text.toString()
                 updateLineMaster.manufacture = et_pipeline_manufacture.text.toString()
+                updateLineMaster.flowLeakageTreshold = (et_flow_rate_ratio.text.toString().toDouble() / 100).toString()
+                updateLineMaster.pressureCheckDuration = et_pressure_leak_duration.text.toString()
+                updateLineMaster.pressureLeakage = (et_pressure_leak_ratio.text.toString().toDouble() / 100).toString()
 
                 lineMasterPresenter.updateLineMaster(updateLineMaster)
 

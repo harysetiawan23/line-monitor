@@ -180,7 +180,7 @@
                                         android:fontFamily="@font/sf_bold"
                                         android:text="0 %"
                                         android:textColor="@color/background"
-                                        android:textSize="28dp" />
+                                        android:textSize="18dp" />
 
 
                                 </LinearLayout>
@@ -239,7 +239,7 @@
                                         android:fontFamily="@font/sf_bold"
                                         android:text="0 %"
                                         android:textColor="@color/background"
-                                        android:textSize="28dp" />
+                                        android:textSize="18dp" />
 
 
                                 </LinearLayout>

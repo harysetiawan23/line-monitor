@@ -9,21 +9,34 @@ import android.view.View
 import android.widget.LinearLayout
 import com.example.harry.linemonitor.R
 import com.example.harry.linemonitor.data.LeakageMaster
+import com.example.harry.linemonitor.data.LineLeakageResponse
 import com.example.harry.linemonitor.data.LineMasterMap
+import com.example.harry.linemonitor.data.SolvedSuccessMessage
 import com.example.harry.linemonitor.view.adapter.LeakageListAdapter
 import com.example.harry.linemonitor.view.contract.LeakageMasterContract
+import com.example.harry.linemonitor.view.contract.SolveLeakageContract
+import com.example.harry.linemonitor.view.presenter.LeakSuccessPresenter
 import com.example.harry.linemonitor.view.presenter.LeakageMasterPresenter
 import kotlinx.android.synthetic.main.activity_line_leakage.*
 import org.jetbrains.anko.ctx
+import org.jetbrains.anko.toast
 
-class LineLeakage : AppCompatActivity(), LeakageMasterContract,LeakageListAdapter.OnItemClickListener {
-//    Leakage On Item Click Listener
-    override fun onHorizontalItemClick(item: LineMasterMap) {
+class LineLeakage : AppCompatActivity(), LeakageMasterContract, LeakageListAdapter.OnItemClickListener, SolveLeakageContract {
+    override fun onUpdateSuccess(data: SolvedSuccessMessage) {
 
+
+    }
+
+    //    Leakage On Item Click Listener
+    override fun onHorizontalItemClick(item: String) {
+        solveLeakagePresenter.updateLeakageIntoSuccess(item)
+        finish()
+        toast("Solved Status Checker Running")
     }
 
 
     private lateinit var leakagePresenter: LeakageMasterPresenter
+    private lateinit var solveLeakagePresenter: LeakSuccessPresenter
     private lateinit var lineMaster: LineMasterMap
     private  var thisActivity = this
 
@@ -35,15 +48,23 @@ class LineLeakage : AppCompatActivity(), LeakageMasterContract,LeakageListAdapte
 
 
         lineMaster = intent.getSerializableExtra("lineData") as LineMasterMap
-        leakagePresenter = LeakageMasterPresenter(ctx, this)
+        leakagePresenter = LeakageMasterPresenter(this, this)
+        solveLeakagePresenter = LeakSuccessPresenter(this, this)
 
-        leakagePresenter.getLeakage(lineMaster.id.toString())
 
-        toolbar.title = "${lineMaster!!.name} Leakage"
-        leakage_rv.layoutManager = LinearLayoutManager(ctx,LinearLayout.VERTICAL,false) as RecyclerView.LayoutManager
+
+        toolbar.title = "${lineMaster.name} Leakage"
+        leakage_rv.layoutManager = LinearLayoutManager(this,LinearLayout.VERTICAL,false)
 
 
     }
+
+
+    override fun onResume() {
+        super.onResume()
+        leakagePresenter.getLeakage(lineMaster.id.toString())
+    }
+
 
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -65,8 +86,8 @@ class LineLeakage : AppCompatActivity(), LeakageMasterContract,LeakageListAdapte
         progress_bar.visibility = View.GONE
     }
 
-    override fun onRetriveDataSuccess(data: List<LeakageMaster?>?) {
-        leakage_rv.adapter = LeakageListAdapter(context = ctx,listener = thisActivity,leakageList = data)
+    override fun onRetriveDataSuccess(data: List<LineLeakageResponse?>?) {
+        leakage_rv.adapter = LeakageListAdapter(context = this,listener = thisActivity,leakageList = data)
     }
 
     override fun onRefreshData(data: LeakageMaster?) {
@@ -86,7 +107,7 @@ class LineLeakage : AppCompatActivity(), LeakageMasterContract,LeakageListAdapte
     }
 
     override fun onError(data: String) {
-
+        finish()
     }
 
 

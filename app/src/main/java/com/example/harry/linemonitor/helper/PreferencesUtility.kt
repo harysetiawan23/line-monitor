@@ -29,9 +29,9 @@ object PreferencesUtility {
 
 
         prefrencesEditor.putString(USER_NAME, registerResponse.data!!.name)
-        prefrencesEditor.putString(USER_EMAIL, registerResponse.data!!.email)
+        prefrencesEditor.putString(USER_EMAIL, registerResponse.data.email)
         prefrencesEditor.putString(USER_TOKEN, registerResponse.token)
-        prefrencesEditor.putString(USER_TOKEN_TYPE,"Bearer")
+        prefrencesEditor.putString(USER_TOKEN_TYPE,"bearer")
         prefrencesEditor.commit()
     }
 
@@ -41,10 +41,10 @@ object PreferencesUtility {
         prefrencesEditor = sharedPrefrences.edit()
 
 
-        prefrencesEditor.putString(USER_NAME, loginResponse.data!!.name)
-        prefrencesEditor.putString(USER_EMAIL, loginResponse.data!!.email)
+        prefrencesEditor.putString(USER_NAME, loginResponse.name)
+        prefrencesEditor.putString(USER_EMAIL, loginResponse.email)
         prefrencesEditor.putString(USER_TOKEN, loginResponse.token)
-        prefrencesEditor.putString(USER_TOKEN_TYPE,loginResponse.type)
+        prefrencesEditor.putString(USER_TOKEN_TYPE,"bearer")
         prefrencesEditor.commit()
 
 
@@ -59,10 +59,8 @@ object PreferencesUtility {
         val token = sharedPrefrences.getString(USER_TOKEN,"")
         val email = sharedPrefrences.getString(USER_EMAIL,"")
         val name = sharedPrefrences.getString(USER_NAME,"")
-        val type = sharedPrefrences.getString(USER_TOKEN_TYPE,"")
 
-        val data = Data(email = email,name = name)
-        return LoginResponse(token = token,data = data,type = type)
+        return LoginResponse(token = token,email = email,name = name)
     }
 
 

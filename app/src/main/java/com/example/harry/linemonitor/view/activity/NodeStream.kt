@@ -23,8 +23,12 @@ import com.example.harry.linemonitor.R
 import com.example.harry.linemonitor.data.*
 import com.example.harry.linemonitor.view.contract.NodeMasterContract
 import com.example.harry.linemonitor.view.presenter.NodeMasterPresenter
-import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.github.nkzawa.socketio.client.IO
+import com.github.nkzawa.socketio.client.Socket
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -41,6 +45,9 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_node_stream.*
 import org.jetbrains.anko.collections.forEachWithIndex
 import org.jetbrains.anko.ctx
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import java.util.*
 
 
@@ -52,7 +59,6 @@ class NodeStream : AppCompatActivity(),
         ActivityCompat.OnRequestPermissionsResultCallback,
         LocationListener,
         NodeMasterContract {
-
 
 
     private lateinit var nodeMaster: NodeMaster
@@ -74,6 +80,7 @@ class NodeStream : AppCompatActivity(),
     private  val EDIT_ACTION_PERFORMED:Int = 1
 
     private lateinit var nodePresenter:NodeMasterPresenter
+    private lateinit var mSocket: Socket
 
 
     @SuppressLint("MissingPermission")
@@ -86,7 +93,7 @@ class NodeStream : AppCompatActivity(),
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
 
-        nodePresenter = NodeMasterPresenter(ctx,this)
+        nodePresenter = NodeMasterPresenter(this,this)
 
 
 
@@ -116,7 +123,7 @@ class NodeStream : AppCompatActivity(),
                 .subscribe { granted ->
                     if (granted!!) {
                         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this) //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
                     } else {
 
@@ -125,11 +132,149 @@ class NodeStream : AppCompatActivity(),
 
 
         my_location_fab.setOnClickListener { view ->
-            var cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, zoom_seekbar.progress.toFloat());
-            mMap.animateCamera(cameraUpdate);
+            var cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, zoom_seekbar.progress.toFloat())
+            mMap.animateCamera(cameraUpdate)
         }
 
+        mSocket = IO.socket("http://23.101.26.206")
+        mSocket.connect()
+        mSocket.on("node-stat/${nodeMaster.sn}", onNodeStatMessage)
+        mSocket.on("node-history/${nodeMaster.sn}", onLineGraphMessage)
 
+        Log.i("node-history/${nodeMaster.sn}",onNodeStatMessage.toString())
+        Log.i("node-stat/${nodeMaster.sn}", onNodeStatMessage.toString())
+    }
+
+    private val onNodeStatMessage = com.github.nkzawa.emitter.Emitter.Listener { args ->
+        runOnUiThread(Runnable {
+
+
+            val data = args[0] as JSONArray
+
+            try {
+                val jsonObject = data[0] as JSONObject
+                tv_start_node_flow.text = "%.0f".format(jsonObject.getDouble("flow"))
+                tv_start_node_pressure.text = "%.0f".format(jsonObject.getDouble("pressure"))
+
+
+            } catch (e: JSONException) {
+                return@Runnable
+            }
+
+
+        })
+    }
+
+    private val onLineGraphMessage = com.github.nkzawa.emitter.Emitter.Listener { args ->
+        runOnUiThread(Runnable {
+            try {
+
+
+                val data = args[0] as JSONArray
+
+                var startNodeFlowEntry = ArrayList<BarEntry>()
+                var startNodePressureEntry = ArrayList<BarEntry>()
+
+
+                var xValue = ArrayList<String>()
+
+
+
+                for (i in (data.length() - 1) downTo 0) {
+
+
+                    var recordData = data[i] as JSONObject
+
+
+                    var lineSocketRecord = LineSocketRecord(
+                            lineId = recordData.getString("id"),
+                            days = recordData.getString("days"),
+                            hours = recordData.getString("hours"),
+                            minutes = recordData.getString("minutes"),
+                            startFlow = recordData.getString("flow"),
+                            startPressure = recordData.getString("pressure")
+                    )
+
+
+                    startNodeFlowEntry.add(BarEntry(lineSocketRecord.startFlow!!.toFloat(), i))
+
+
+
+                    startNodePressureEntry.add(BarEntry(lineSocketRecord.startPressure!!.toFloat(), i))
+
+
+                    xValue.add("${lineSocketRecord.hours} : ${lineSocketRecord.minutes}")
+                }
+
+
+                var colors = intArrayOf(R.color.google_blue, android.R.color.white)
+                var index = floatArrayOf(0f, 1f)
+
+
+                var startFlowDataSet = BarDataSet(startNodeFlowEntry, nodeMaster.sn)
+                startFlowDataSet.color = ContextCompat.getColor(this, R.color.google_blue)
+                startFlowDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
+
+
+                var startPressureDataSet = BarDataSet(startNodePressureEntry, nodeMaster.sn)
+                startPressureDataSet.color = ContextCompat.getColor(this, R.color.google_blue)
+                startPressureDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
+
+
+                val flowDataSets = java.util.ArrayList<IBarDataSet>()
+                flowDataSets.add(startFlowDataSet)
+
+
+                val pressureDataSets = java.util.ArrayList<IBarDataSet>()
+                pressureDataSets.add(startPressureDataSet)
+
+
+                val l = flow_chart.legend
+                l.textSize = 16f
+
+
+                val lp = pressure_chart.legend
+                lp.textSize = 16f
+
+                val right = flow_chart.axisRight
+                right.setDrawLabels(true)
+                right.textSize = 0f
+                right.textColor = Color.WHITE
+                right.setDrawLabels(false)
+                right.setDrawAxisLine(false)
+                right.setDrawGridLines(false)
+                right.setDrawZeroLine(false)
+
+
+                var flow = BarData(xValue, flowDataSets)
+                var pressure = BarData(xValue, pressureDataSets)
+
+
+                flow_chart.data = flow
+                flow_chart.animateX(0)
+                flow_chart.animateY(0)
+
+                //refresh
+                flow_chart.invalidate()
+                flow_chart.animateX(0)
+                flow_chart.animateY(0)
+
+
+                pressure_chart.data = pressure
+                pressure_chart.animateX(0)
+                pressure_chart.animateY(0)
+                //refresh
+                pressure_chart.invalidate()
+                pressure_chart.animateX(0)
+                pressure_chart.animateY(0)
+
+
+            } catch (e: java.lang.Exception) {
+                Log.e("ERROR", e.toString())
+            }
+
+
+        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -156,7 +301,7 @@ class NodeStream : AppCompatActivity(),
         when (item?.itemId) {
             android.R.id.home -> finish()
             R.id.edit -> {
-                var intent = Intent(ctx,EditNode::class.java)
+                var intent = Intent(this,EditNode::class.java)
                 intent.putExtra("nodeData",nodeMaster)
                 intent.putExtra("resultCode",EDIT_ACTION_PERFORMED)
                 startActivityForResult(intent,EDIT_ACTION_PERFORMED)
@@ -189,10 +334,10 @@ class NodeStream : AppCompatActivity(),
         }
 
         var nodeMarker = MarkerOptions()
-                .position(LatLng(nodeMaster!!.lat!!.toDouble(), nodeMaster!!.lng!!.toDouble()))
-                .title(nodeMaster!!.sn)
+                .position(LatLng(nodeMaster.lat!!.toDouble(), nodeMaster.lng!!.toDouble()))
+                .title(nodeMaster.sn)
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(nodeMaster!!.lat!!.toDouble(), nodeMaster!!.lng!!.toDouble()), zoom_seekbar.progress.toFloat()))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(nodeMaster.lat!!.toDouble(), nodeMaster.lng!!.toDouble()), zoom_seekbar.progress.toFloat()))
 
         mMap.isTrafficEnabled = true
         mMap.isBuildingsEnabled = true
@@ -248,33 +393,30 @@ class NodeStream : AppCompatActivity(),
                 if (statItem!!.startNodeId == nodeMaster.id) {
                     lineId = statItem.id!!
                     isStartNode = true
-                } else if (statItem!!.endNodeId == nodeMaster.id) {
+                } else if (statItem.endNodeId == nodeMaster.id) {
                     lineId = statItem.id!!
                     isStartNode = false
                 }
 
 
                 if(lineId!=0){
-                    data.lineRecords?.stat?.forEach { statItem: StatItem? ->
+                    data.lineRecords.stat.forEach { statItem: StatItem? ->
                         if (lineId == statItem!!.id) {
 
                             if(isStartNode){
-                                tv_start_node_flow.text = "%.0f".format(statItem!!.lastStartNodeFlow)
-                                tv_start_node_pressure.text = "%.0f".format(statItem!!.lastStartNodePressure)
+                                tv_start_node_flow.text = "%.0f".format(statItem.lastStartNodeFlow)
+                                tv_start_node_pressure.text = "%.0f".format(statItem.lastStartNodePressure)
                             }else{
-                                tv_start_node_flow.text = "%.0f".format(statItem!!.lastEndNodeFlow)
-                                tv_start_node_pressure.text = "%.0f".format(statItem!!.lastEndNodePressure)
+                                tv_start_node_flow.text = "%.0f".format(statItem.lastEndNodeFlow)
+                                tv_start_node_pressure.text = "%.0f".format(statItem.lastEndNodePressure)
                             }
-
-
-
 
 
                         }
                     }
 
 
-                    data.lineRecords?.graph?.forEachWithIndex { i, graphItem ->
+                    data.lineRecords.graph?.forEachWithIndex { i, graphItem ->
                         var startNodeFlowEntry = ArrayList<BarEntry>()
                         var endNodeFlowEntry = ArrayList<BarEntry>()
 
@@ -288,15 +430,15 @@ class NodeStream : AppCompatActivity(),
                         if(lineId == graphItem?.lineId){
 
 
-                            graphItem?.data?.reversed()!!.forEachWithIndex{i, dataItem ->
-                                xValue.add("${dataItem!!.hours} : ${dataItem!!.minutes}")
+                            graphItem.data?.reversed()!!.forEachWithIndex{ i, dataItem ->
+                                xValue.add("${dataItem!!.hours} : ${dataItem.minutes}")
 
                                 if(isStartNode){
-                                    startNodeFlowEntry.add(BarEntry(dataItem?.startFlow!!.toFloat(),i))
-                                    startNodePressureEntry.add(BarEntry(dataItem?.startPressure!!.toFloat(),i))
+                                    startNodeFlowEntry.add(BarEntry(dataItem.startFlow!!.toFloat(),i))
+                                    startNodePressureEntry.add(BarEntry(dataItem.startPressure!!.toFloat(),i))
                                 }else{
-                                    endNodeFlowEntry.add(BarEntry(dataItem?.endFlow!!.toFloat(),i))
-                                    endNodePressureEntry.add(BarEntry(dataItem?.endPressure!!.toFloat(),i))
+                                    endNodeFlowEntry.add(BarEntry(dataItem.endFlow!!.toFloat(),i))
+                                    endNodePressureEntry.add(BarEntry(dataItem.endPressure!!.toFloat(),i))
                                 }
 
 
@@ -310,23 +452,23 @@ class NodeStream : AppCompatActivity(),
 
 
                         var startFlowDataSet = BarDataSet(startNodeFlowEntry, statItem.startNodeSN)
-                        startFlowDataSet.setColor(ContextCompat.getColor(this, R.color.google_blue));
-                        startFlowDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+                        startFlowDataSet.color = ContextCompat.getColor(this, R.color.google_blue)
+                        startFlowDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
 
 
                         var endFlowDataSet = BarDataSet(endNodeFlowEntry, statItem.endNodeSN)
-                        endFlowDataSet.setColor(ContextCompat.getColor(this, R.color.google_red));
-                        endFlowDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+                        endFlowDataSet.color = ContextCompat.getColor(this, R.color.google_red)
+                        endFlowDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
 
 
                         var startPressureDataSet = BarDataSet(startNodePressureEntry, statItem.startNodeSN)
-                        startPressureDataSet.setColor(ContextCompat.getColor(this, R.color.google_blue));
-                        startPressureDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+                        startPressureDataSet.color = ContextCompat.getColor(this, R.color.google_blue)
+                        startPressureDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
 
 
                         var endPressureDataSet = BarDataSet(endNodePressureEntry, statItem.endNodeSN)
-                        endPressureDataSet.setColor(ContextCompat.getColor(this, R.color.google_red));
-                        endPressureDataSet.setValueTextColor(ContextCompat.getColor(this, R.color.primary_dark_material_light));
+                        endPressureDataSet.color = ContextCompat.getColor(this, R.color.google_red)
+                        endPressureDataSet.valueTextColor = ContextCompat.getColor(this, R.color.primary_dark_material_light)
 
 
                         val flowDataSets = java.util.ArrayList<IBarDataSet>()
@@ -339,11 +481,11 @@ class NodeStream : AppCompatActivity(),
 
 
                         val l = flow_chart.legend
-                        l.setTextSize(16f)
+                        l.textSize = 16f
 
 
                         val lp = pressure_chart.legend
-                        lp.setTextSize(16f)
+                        lp.textSize = 16f
 
                         val right = flow_chart.axisRight
                         right.setDrawLabels(true)
@@ -359,19 +501,16 @@ class NodeStream : AppCompatActivity(),
                         var pressure = BarData(xValue, pressureDataSets)
 
 
-                        flow_chart.setData(data);
-                        flow_chart.animateX(1000);
+                        flow_chart.data = data
+                        flow_chart.animateX(1000)
                         //refresh
-                        flow_chart.invalidate();
+                        flow_chart.invalidate()
 
 
-                        pressure_chart.setData(pressure);
-                        pressure_chart.animateX(1000);
+                        pressure_chart.data = pressure
+                        pressure_chart.animateX(1000)
                         //refresh
-                        pressure_chart.invalidate();
-
-
-
+                        pressure_chart.invalidate()
 
 
                     }
@@ -405,7 +544,7 @@ class NodeStream : AppCompatActivity(),
     //Seekbar Listener
 
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(nodeMaster!!.lat!!.toDouble(), nodeMaster!!.lng!!.toDouble()), zoom_seekbar.progress.toFloat()))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(nodeMaster.lat!!.toDouble(), nodeMaster.lng!!.toDouble()), zoom_seekbar.progress.toFloat()))
     }
 
     override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -420,10 +559,10 @@ class NodeStream : AppCompatActivity(),
     //Marker CLick
 
     override fun onMarkerClick(marker: Marker?): Boolean {
-        var gmapsIntentUri = Uri.parse("google.navigation:q=${marker!!.position.latitude},${marker!!.position.longitude}")
+        var gmapsIntentUri = Uri.parse("google.navigation:q=${marker!!.position.latitude},${marker.position.longitude}")
         var mapIntent = Intent(Intent.ACTION_VIEW, gmapsIntentUri)
-        mapIntent.setPackage("com.google.android.apps.maps");
-        startActivity(mapIntent);
+        mapIntent.setPackage("com.google.android.apps.maps")
+        startActivity(mapIntent)
 
         return true
     }
@@ -431,9 +570,9 @@ class NodeStream : AppCompatActivity(),
 
     //Location Listener
     override fun onLocationChanged(location: Location?) {
-        var latLng = LatLng(location!!.getLatitude(), location!!.getLongitude());
+        var latLng = LatLng(location!!.latitude, location.longitude)
         myLocation = latLng
-        locationManager.removeUpdates(this);
+        locationManager.removeUpdates(this)
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
